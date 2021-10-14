@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
+import org.example.handlers.requestHandlers.NewIdentityRequestHandler;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
 import org.example.models.requests.*;
@@ -24,7 +25,6 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         this.ctx = ctx;
-        System.out.println("channe active");
         channelIdClient.put(ctx.channel().id(), new Client());
 
     }
@@ -52,9 +52,8 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
         if (request instanceof NewIdentityRequest) {
             //new identity handler
             System.out.println("NewIdentityRequest");
-            NewIdentityRequest nir = (NewIdentityRequest)  request;
-            System.out.println(((NewIdentityRequest) request).getIdentity());
-
+            NewIdentityRequestHandler newIdentityRequestHandler = new NewIdentityRequestHandler(request);
+            newIdentityRequestHandler.processRequest();
         }
         else if (request instanceof CreateRoomRequest) {
             System.out.println("CreateRoomRequest");
