@@ -10,17 +10,16 @@ import org.json.simple.JSONObject;
 
 public class MessageRequestHandler extends AbstractRequestHandler{
     private MessageRequest request;
-    private Client client;
 
     public MessageRequestHandler(AbstractRequest request, IClient client) {
+        super((Client) client);
         this.request = (MessageRequest)  request;
-        this.client = (Client) client;
     }
 
 
     @Override
     public JSONObject processRequest() {
-        String identity = client.getIdentity();
+        String identity = super.getClient().getIdentity();
         String content = request.getContent();
         return ReplyObjects.message(identity, content);
     }

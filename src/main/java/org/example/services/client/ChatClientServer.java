@@ -6,6 +6,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import org.example.models.client.IClient;
 import org.example.services.client.decoders.RequestObjectDecoder;
 
@@ -38,6 +40,7 @@ public class ChatClientServer {
                             socketChannel.pipeline().addLast(
                                     new JsonObjectDecoder(),
                                     new RequestObjectDecoder(),
+                                    new StringEncoder(CharsetUtil.UTF_8),
                                     new ChatServerHandler()
                             );
                         }

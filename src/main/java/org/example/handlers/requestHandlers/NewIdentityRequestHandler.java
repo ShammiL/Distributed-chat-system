@@ -14,14 +14,13 @@ import java.util.Map;
 
 public class NewIdentityRequestHandler extends AbstractRequestHandler{
     private NewIdentityRequest request;
-    private Client client;
     private boolean approved;
     private String identity;
 
 
     public NewIdentityRequestHandler(AbstractRequest request, IClient client) {
+        super((Client) client);
         this.request = (NewIdentityRequest)  request;
-        this.client = (Client) client;
     }
 
 

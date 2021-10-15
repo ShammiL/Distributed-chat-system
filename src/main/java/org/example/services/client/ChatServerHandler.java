@@ -124,12 +124,11 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    //----------------------------------------------------------------
     public void sendResponse(JSONObject reply) {
-        ByteBuf buffer;
-        buffer = Unpooled.copiedBuffer(reply.toJSONString() + "\n", CharsetUtil.UTF_8);
+//        ByteBuf buffer;
+//        buffer = Unpooled.copiedBuffer(reply.toJSONString() + "\n", CharsetUtil.UTF_8);
 
-        final ChannelFuture f = ctx.writeAndFlush(buffer);
+        final ChannelFuture f = ctx.writeAndFlush(reply.toJSONString() + "\n");
         f.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) {
