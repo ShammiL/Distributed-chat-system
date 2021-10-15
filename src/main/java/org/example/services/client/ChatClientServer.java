@@ -9,6 +9,7 @@ import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.example.models.client.IClient;
+import org.example.models.room.Room;
 import org.example.services.client.decoders.RequestObjectDecoder;
 
 import java.util.Map;
@@ -17,12 +18,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatClientServer {
 
     private final int port;
+    private static String id;
     public static Map<ChannelId, IClient> channelIdClient = new ConcurrentHashMap<>();
+    public static Map<String, Room> localRoomIdLocalRoom = new ConcurrentHashMap<>();
 
 
-    public ChatClientServer(int port) {
-
+    public ChatClientServer(int port, String id) {
+        this.id = id;
         this.port = port;
+        localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id) );
+    }
+
+    public static Room getMainHal(){
+        return localRoomIdLocalRoom.get("MainHall-" + id);
     }
 
     public void run() throws Exception {

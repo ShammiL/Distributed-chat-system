@@ -3,6 +3,7 @@ package org.example.models.reply;
 import org.json.simple.JSONObject;
 
 public class ReplyObjects {
+    private ReplyObjects() {}
     @SuppressWarnings("unchecked")
     public static JSONObject newIdentityReply(String approveVal) {
         JSONObject newIdentity = new JSONObject();
@@ -27,6 +28,25 @@ public class ReplyObjects {
         msg.put("type", "message");
         msg.put("identity", identity);
         msg.put("content", content);
+        return msg;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static JSONObject createNewRoom(String roomId, boolean approved) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "createroom");
+        msg.put("roomid", roomId);
+        msg.put("approved", Boolean.toString(approved));
+        return msg;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static JSONObject roomChange(String clientId, String roomId, String formerRoomId) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "roomchange");
+        msg.put("identity", clientId);
+        msg.put("former", formerRoomId);
+        msg.put("roomid", roomId);
         return msg;
     }
 }

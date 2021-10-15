@@ -5,14 +5,16 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
+import org.example.handlers.requestHandlers.CreateRoomRequestHandler;
 import org.example.handlers.requestHandlers.MessageRequestHandler;
 import org.example.handlers.requestHandlers.NewIdentityRequestHandler;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
 import org.example.models.reply.ReplyObjects;
 import org.example.models.requests.*;
+import org.example.models.room.LocalRoom;
+import org.example.models.room.Room;
 import org.json.simple.JSONObject;
-
 
 
 import java.util.Map;
@@ -20,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
-//    private final Map<ChannelId, IClient> channelIdClient = new ConcurrentHashMap<>();
+    //    private final Map<ChannelId, IClient> channelIdClient = new ConcurrentHashMap<>();
     private ChannelHandlerContext ctx;
     IClient client;
 
@@ -68,50 +70,61 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
                 if (newIdentityRequestHandler.isApproved()) {
                     ((Client) client).setIdentity(newIdentityRequestHandler.getIdentity());
                     ((Client) client).setCtx(ctx);
+                    ((Client) client).setRoom(ChatClientServer.getMainHal());
                     JSONObject roomChange = ReplyObjects.newIdRoomChange(((Client) client).getIdentity());
                     sendResponse(roomChange);
-                    broadcast(roomChange);
+                    broadcast(roomChange, ChatClientServer.getMainHal());
                 }
             }
-        }
-        else if (request instanceof CreateRoomRequest) {
+        } else if (request instanceof CreateRoomRequest) {
             System.out.println("CreateRoomRequest");
+            synchronized (this) {
+                CreateRoomRequestHandler createRoomRequestHandler = new CreateRoomRequestHandler(request, client);
+                JSONObject reply = createRoomRequestHandler.processRequest();
+                sendResponse(reply);
+                if (createRoomRequestHandler.isApproved()) {
+                    Room room = new LocalRoom(((CreateRoomRequest) request).getRoomId(),
+                            ((Client) client).getIdentity()); // create a new local room
+                    Room formerRoom = ((Client) client).getRoom(); // get previous room
 
-        }
-        else if (request instanceof DeleteRoomRequest) {
+                    ((Client) client).setRoom(room); // set new room to client
+                    ChatClientServer.localRoomIdLocalRoom.put(((CreateRoomRequest) request).getRoomId(),
+                            room); // add new room to local list
+
+
+                    JSONObject roomChange = ReplyObjects.roomChange(((Client) client).getIdentity(),
+                            ((CreateRoomRequest) request).getRoomId(), formerRoom.getRoomId());
+                    sendResponse(roomChange);
+                    broadcast(roomChange, formerRoom);
+                }
+            }
+        } else if (request instanceof DeleteRoomRequest) {
             System.out.println("DeleteRoomRequest");
 
 
-        }
-        else if (request instanceof JoinRoomRequest) {
+        } else if (request instanceof JoinRoomRequest) {
             System.out.println("JoinRoomRequest");
 
 
-        }
-        else if (request instanceof MoveJoinRequest) {
+        } else if (request instanceof MoveJoinRequest) {
             System.out.println("MoveJoinRequest");
 
 
-        }
-        else if (request instanceof ListRequest) {
+        } else if (request instanceof ListRequest) {
             System.out.println("ListRequest");
 
 
-        }
-        else if (request instanceof MessageRequest) {
+        } else if (request instanceof MessageRequest) {
             System.out.println("MessageRequest");
             MessageRequestHandler messageRequestHandler = new MessageRequestHandler(request, client);
             JSONObject msg = messageRequestHandler.processRequest();
-            broadcast(msg);
-        }
-        else if (request instanceof QuitRequest) {
+            broadcast(msg, ((Client) client).getRoom());
+        } else if (request instanceof QuitRequest) {
             System.out.println("QuitRequest");
 
-        }
-        else if (request instanceof WhoRequest) {
+        } else if (request instanceof WhoRequest) {
             System.out.println("WhoRequest");
-        }
-        else {
+        } else {
             throw new ClassNotFoundException("Request object invalid");
         }
 
@@ -138,11 +151,11 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
         });
     }
 
-    public void broadcast(JSONObject reply){
+    public void broadcast(JSONObject reply, Room room) {
         for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
             Client clientFromMap = (Client) entry.getValue();
             System.out.println("clientFromMap: " + clientFromMap.getIdentity() + " | client: " + ((Client) client).getIdentity());
-            if (!clientFromMap.getIdentity().equals(((Client) client).getIdentity())) {
+            if (!clientFromMap.getIdentity().equals(((Client) client).getIdentity()) && clientFromMap.getRoom().equals(room)) {
                 ChannelHandlerContext ctxOfClientFromMap = clientFromMap.getCtx();
 
                 ByteBuf buffer;
