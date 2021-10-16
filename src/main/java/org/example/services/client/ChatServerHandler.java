@@ -6,6 +6,7 @@ import io.netty.channel.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.example.handlers.requestHandlers.CreateRoomRequestHandler;
+import org.example.handlers.requestHandlers.JoinRoomRequestHandler;
 import org.example.handlers.requestHandlers.MessageRequestHandler;
 import org.example.handlers.requestHandlers.NewIdentityRequestHandler;
 import org.example.models.client.Client;
@@ -104,6 +105,18 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
         } else if (request instanceof JoinRoomRequest) {
             System.out.println("JoinRoomRequest");
+            synchronized (this) {
+                JoinRoomRequestHandler joinRoomRequestHandler = new JoinRoomRequestHandler(request, client);
+                JSONObject reply = joinRoomRequestHandler.processRequest();
+                sendResponse(reply);
+                if (joinRoomRequestHandler.isLocalRoomExist(((JoinRoomRequest) request).getRoomId()) && joinRoomRequestHandler.isCurrentOwner()) {
+                    Room newRoom = ChatClientServer.localRoomIdLocalRoom.get(((JoinRoomRequest) request).getRoomId());
+                    Room formerRoom = ((Client) client).getRoom();
+                    ((Client) client).setRoom(newRoom);
+                    broadcast(reply, formerRoom);
+                    broadcast(reply, newRoom);
+                }
+            }
 
 
         } else if (request instanceof MoveJoinRequest) {
