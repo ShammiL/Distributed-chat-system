@@ -12,8 +12,9 @@ import org.json.simple.JSONObject;
 
 import java.util.Map;
 
-public class DeleteRoomRequestHandler extends AbstractRequestHandler{
+public class DeleteRoomRequestHandler extends AbstractRequestHandler {
     public DeleteRoomRequest request;
+    public boolean approved;
 
     public DeleteRoomRequestHandler(AbstractRequest request, IClient client) {
         super((Client) client);
@@ -22,37 +23,43 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler{
 
     @Override
     public JSONObject processRequest() {
-        return ReplyObjects.deleteRoomClientMessage(request.getRoomId(), isCapable());
+        this.approved = isCapable();
+        return ReplyObjects.deleteRoomClientMessage(request.getRoomId(), approved);
     }
 
     @Override
     public void handleRequest() {
-//        synchronized (this) {
-//            JSONObject reply = processRequest();
-//            sendResponse(reply);
-//
-//            if (reply.get("approved").toString().equals("true")) {
-//                for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
-//                    Client client1 = (Client) entry.getValue();
-////                        if (client1.getRoom().getRoomId().equals(reply.get("roomid").toString())){
-////                            JoinRoomRequestHandler joinRoomRequestHandler = new JoinRoomRequestHandler(request, client1);
-////                            JSONObject reply1 = joinRoomRequestHandler.processRequest();
-////                            sendResponse(reply1);
-////                            if (joinRoomRequestHandler.isLocalRoomExist(((JoinRoomRequest) request).getRoomId()) && joinRoomRequestHandler.isCurrentOwner()) {
-////                                Room newRoom = ChatClientServer.localRoomIdLocalRoom.get(((JoinRoomRequest) request).getRoomId());
-////                                Room formerRoom = ((Client) client).getRoom();
-////                                ((Client) client).setRoom(newRoom);
-////                                broadcast(reply, formerRoom);
-////                                broadcast(reply, newRoom);
-////                            }
-////                        }
-//                }
-//                // todo: send server request
-//            }
-//        }
+        synchronized (this) {
+            JSONObject reply = processRequest();
+            sendResponse(reply);
+
+            if (approved) {
+                for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
+                    Client clientC = (Client) entry.getValue();
+                    if (clientC.getRoom().getRoomId().equals(request.getRoomId())) {
+                        JSONObject replyC = clientToMainRoom(clientC);
+                        clientC.setRoom(ChatClientServer.getMainHal());
+                        sendResponse(replyC);
+                        broadcast(replyC, clientC.getRoom());
+                        broadcast(replyC, ChatClientServer.getMainHal());
+                    }
+                }
+                ChatClientServer.localRoomIdLocalRoom.remove(request.getRoomId());
+            }
+            // todo: send server request
+        }
     }
 
-    private boolean isCapable(){
+
+
+    public JSONObject clientToMainRoom(Client clientC) {
+        return ReplyObjects.roomChange(clientC.getIdentity(), ChatClientServer.getMainHal().getRoomId(),
+                clientC.getRoom().getRoomId());
+
+    }
+
+
+    private boolean isCapable() {
         return (request.getRoomId().equals(getClient().getRoom().getRoomId())
                 && ((LocalRoom) getClient().getRoom()).getOwner().equals(getClient().getIdentity()));
     }
