@@ -44,6 +44,21 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
         return ReplyObjects.newIdentityReply(approvalString);
     }
 
+    @Override
+    public void handleRequest() {
+        synchronized (this) {
+            JSONObject reply = processRequest();
+            sendResponse(reply);
+            if (approved) {
+                getClient().setIdentity(request.getIdentity());
+                getClient().setRoom(ChatClientServer.getMainHal());
+                JSONObject roomChange = ReplyObjects.newIdRoomChange(getClient().getIdentity());
+                sendResponse(roomChange);
+                broadcast(roomChange, ChatClientServer.getMainHal());
+            }
+        }
+    }
+
     public boolean approveIdentity(String identity){
         if (validateIdentityValue(identity)){
             return checkUniqueIdentity(identity);

@@ -1,5 +1,6 @@
 package org.example.models.reply;
 
+import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
 
 public class ReplyObjects {
@@ -47,6 +48,22 @@ public class ReplyObjects {
         msg.put("identity", clientId);
         msg.put("former", formerRoomId);
         msg.put("roomid", roomId);
+        return msg;
+    }
+
+    public static JSONObject deleteRoomClientMessage(String roomId, boolean approved){
+        JSONObject msg = new JSONObject();
+        msg.put("type", "deleteroom");
+        msg.put("roomid", roomId);
+        msg.put("approved", Boolean.toString(approved));
+        return msg;
+    }
+
+    public static JSONObject deleteRoomServerMessage(String roomId){
+        JSONObject msg = new JSONObject();
+        msg.put("type", "deleteroom");
+        msg.put("roomid", roomId);
+        msg.put("serverid", ChatClientServer.getId());
         return msg;
     }
 }

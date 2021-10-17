@@ -36,6 +36,21 @@ public class JoinRoomRequestHandler extends AbstractRequestHandler{
         // TODO: do:: check global list
     }
 
+    @Override
+    public void handleRequest() {
+        synchronized (this) {
+            JSONObject reply = processRequest();
+            sendResponse(reply);
+            if (isLocalRoomExist( request.getRoomId()) && isCurrentOwner()) {
+                Room newRoom = ChatClientServer.localRoomIdLocalRoom.get( request.getRoomId());
+                Room formerRoom = getClient().getRoom();
+                getClient().setRoom(newRoom);
+                broadcast(reply, formerRoom);
+                broadcast(reply, newRoom);
+            }
+        }
+    }
+
     public boolean isLocalRoomExist(String roomId) {
         return ChatClientServer.localRoomIdLocalRoom.containsKey(roomId);
     }

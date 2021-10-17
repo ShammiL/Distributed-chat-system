@@ -33,6 +33,10 @@ public class ChatClientServer {
         return localRoomIdLocalRoom.get("MainHall-" + id);
     }
 
+    public static String getId() {
+        return id;
+    }
+
     public void run() throws Exception {
         EventLoopGroup parentGroup = new NioEventLoopGroup();
         EventLoopGroup childGroup = new NioEventLoopGroup();

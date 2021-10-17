@@ -23,4 +23,10 @@ public class MessageRequestHandler extends AbstractRequestHandler{
         String content = request.getContent();
         return ReplyObjects.message(identity, content);
     }
+
+    @Override
+    public void handleRequest() {
+        JSONObject msg = processRequest();
+        broadcast(msg, getClient().getRoom());
+    }
 }
