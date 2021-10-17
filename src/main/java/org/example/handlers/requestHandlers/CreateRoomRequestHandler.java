@@ -7,6 +7,7 @@ import org.example.models.reply.ReplyObjects;
 import org.example.models.requests.AbstractRequest;
 import org.example.models.requests.CreateRoomRequest;
 import org.example.models.room.LocalRoom;
+import org.example.models.room.Room;
 import org.example.services.client.ChatClientServer;
 import org.example.services.client.UtilService;
 import org.json.simple.JSONObject;
@@ -36,6 +37,28 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
         System.out.println("roomId : " + roomId);
         approved = approveIdentity(roomId);
         return ReplyObjects.createNewRoom(roomId, approved);
+    }
+
+    @Override
+    public void handleRequest() {
+        synchronized (this) {
+            JSONObject reply = processRequest();
+            sendResponse(reply);
+            if (approved) {
+                Room room = new LocalRoom(request.getRoomId(), getClient().getIdentity()); // create a new local room
+                Room formerRoom = getClient().getRoom(); // get previous room
+
+                getClient().setRoom(room); // set new room to client
+                ChatClientServer.localRoomIdLocalRoom.put(request.getRoomId(),
+                        room); // add new room to local list
+
+
+                JSONObject roomChange = ReplyObjects.roomChange(getClient().getIdentity(),
+                        request.getRoomId(), formerRoom.getRoomId());
+                sendResponse(roomChange);
+                broadcast(roomChange, formerRoom);
+            }
+        }
     }
 
     private boolean approveIdentity(String identity) {
