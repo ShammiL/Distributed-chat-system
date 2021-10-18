@@ -42,7 +42,12 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
 //        channelIdClient.remove(ctx.channel().id());
+        System.out.println("channel inactive");
         ChatClientServer.channelIdClient.remove(ctx.channel().id());
+//        for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
+//            Client clientC = (Client) entry.getValue();
+//            System.out.println(clientC.getIdentity());
+//        }
 
     }
 
@@ -62,11 +67,25 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
     private void serveRequest(IClient client, AbstractRequest request)  {
         AbstractRequestHandler requestHandler = RequestHandlerFactory.requestHandler(request, client);
         requestHandler.handleRequest();
+        if (requestHandler instanceof QuitRequestHandler) {
+            ctx.close();
+            ChatClientServer.channelIdClient.remove(ctx.channel().id());
+            if (((QuitRequestHandler)requestHandler).isCurrentOwner()) {
+                DeleteRoomRequestHandler deleteRoomRequestHandler = new DeleteRoomRequestHandler(new DeleteRoomRequest(((Client) client).getRoom().getRoomId()), (Client) client);
+                deleteRoomRequestHandler.handleRequest();
+            }
+        }
+
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+//        cause.printStackTrace();
+        AbstractRequest request = new QuitRequest();
+//        IClient client = ChatClientServer.channelIdClient.remove(ctx.channel().id())
+        serveRequest(client, request);
+        System.out.println("Disconnected");
         ctx.close();
+
     }
 }

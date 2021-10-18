@@ -12,6 +12,7 @@ import org.example.models.client.IClient;
 import org.example.models.room.Room;
 import org.example.services.client.decoders.RequestObjectDecoder;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,7 +49,7 @@ public class ChatClientServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
 
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        protected void initChannel(SocketChannel socketChannel) throws IOException {
                             socketChannel.pipeline().addLast(
                                     new JsonObjectDecoder(),
                                     new RequestObjectDecoder(),
