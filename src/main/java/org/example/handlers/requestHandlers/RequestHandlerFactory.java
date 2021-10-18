@@ -1,5 +1,6 @@
 package org.example.handlers.requestHandlers;
 
+import io.netty.channel.ChannelHandlerContext;
 import org.example.models.client.IClient;
 import org.example.models.requests.*;
 
@@ -26,6 +27,9 @@ public class RequestHandlerFactory {
         }
         if (request instanceof MessageRequest){
             return new MessageRequestHandler(request, client);
+        }
+        if (request instanceof QuitRequest) {
+            return new QuitRequestHandler(request, client);
         }
         return null;
     }

@@ -13,8 +13,8 @@ import org.json.simple.JSONObject;
 import java.util.Map;
 
 public class DeleteRoomRequestHandler extends AbstractRequestHandler {
-    public DeleteRoomRequest request;
-    public boolean approved;
+    private DeleteRoomRequest request;
+    private boolean approved;
 
     public DeleteRoomRequestHandler(AbstractRequest request, IClient client) {
         super((Client) client);
@@ -40,8 +40,9 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
                         JSONObject replyC = clientToMainRoom(clientC);
                         sendResponse(replyC);
                         broadcast(replyC, clientC.getRoom());
-                        clientC.setRoom(ChatClientServer.getMainHal());
                         broadcast(replyC, ChatClientServer.getMainHal());
+                        clientC.setRoom(ChatClientServer.getMainHal());
+
                     }
                 }
                 ChatClientServer.localRoomIdLocalRoom.remove(request.getRoomId());

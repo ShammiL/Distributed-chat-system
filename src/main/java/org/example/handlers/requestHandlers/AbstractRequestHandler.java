@@ -48,11 +48,7 @@ public abstract class AbstractRequestHandler {
             System.out.println("clientFromMap: " + clientFromMap.getIdentity() + " | client: " + ((Client) client).getIdentity());
             if (!clientFromMap.getIdentity().equals(((Client) client).getIdentity()) && clientFromMap.getRoom().equals(room)) {
                 ChannelHandlerContext ctxOfClientFromMap = clientFromMap.getCtx();
-
-                ByteBuf buffer;
-                buffer = Unpooled.copiedBuffer(reply.toJSONString() + "\n", CharsetUtil.UTF_8);
-
-                final ChannelFuture f = ctxOfClientFromMap.writeAndFlush(buffer);
+                final ChannelFuture f = ctxOfClientFromMap.writeAndFlush(reply.toJSONString() + "\n");
                 f.addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) {
