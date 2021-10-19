@@ -1,27 +1,41 @@
 package org.example.services.client;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import org.example.models.client.IClient;
+import org.example.models.room.Room;
 import org.example.services.client.decoders.RequestObjectDecoder;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatClientServer {
 
     private final int port;
+    private static String id;
+    public static Map<ChannelId, IClient> channelIdClient = new ConcurrentHashMap<>();
+    public static Map<String, Room> localRoomIdLocalRoom = new ConcurrentHashMap<>();
 
-    public ChatClientServer(int port) {
 
+    public ChatClientServer(int port, String id) {
+        this.id = id;
         this.port = port;
+        localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id) );
+    }
+
+    public static Room getMainHal(){
+        return localRoomIdLocalRoom.get("MainHall-" + id);
+    }
+
+    public static String getId() {
+        return id;
     }
 
     public void run() throws Exception {
@@ -35,10 +49,11 @@ public class ChatClientServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
 
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        protected void initChannel(SocketChannel socketChannel) throws IOException {
                             socketChannel.pipeline().addLast(
                                     new JsonObjectDecoder(),
                                     new RequestObjectDecoder(),
+                                    new StringEncoder(CharsetUtil.UTF_8),
                                     new ChatServerHandler()
                             );
                         }
