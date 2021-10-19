@@ -63,7 +63,7 @@ public class ReplyObjects {
         JSONObject msg = new JSONObject();
         msg.put("type", "deleteroom");
         msg.put("roomid", roomId);
-        msg.put("serverid", ChatClientServer.getId());
+        msg.put("serverid", ChatClientServer.getInstance().getId());
         return msg;
     }
 }
