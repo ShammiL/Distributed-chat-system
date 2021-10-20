@@ -10,6 +10,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.example.models.client.IClient;
 import org.example.models.room.Room;
+import org.example.models.server.ServerInfo;
+import org.example.models.server.ServerState;
 import org.example.services.client.decoders.RequestObjectDecoder;
 
 import java.io.IOException;
@@ -17,20 +19,31 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatClientServer {
-
+    private static ChatClientServer instance;
     private final int port;
     private static String id;
     public static Map<ChannelId, IClient> channelIdClient = new ConcurrentHashMap<>();
     public static Map<String, Room> localRoomIdLocalRoom = new ConcurrentHashMap<>();
 
+    private ServerInfo serverInfo;
 
-    public ChatClientServer(int port, String id) {
-        this.id = id;
-        this.port = port;
-        localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id) );
+    private ChatClientServer() {
+        this.serverInfo = ServerState.getInstance().getServerInfo();
+        this.id = serverInfo.getServerId();
+        this.port = serverInfo.getClientPort();
+        localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
     }
 
-    public static Room getMainHal(){
+
+    public static ChatClientServer getInstance() {
+        if (instance == null) {
+            instance = new ChatClientServer();
+        }
+        return instance;
+    }
+
+
+    public static Room getMainHal() {
         return localRoomIdLocalRoom.get("MainHall-" + id);
     }
 
