@@ -22,7 +22,15 @@ public class Main {
             serverConfig = values.getServerConfig();
 
             new ConfigReaderService().readFile(serverConfig, serverId);
-            CoordinationServer.getInstance().run();
+            Thread coordinatorThread = new Thread(() -> {
+                try {
+                    CoordinationServer.getInstance().run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            coordinatorThread.start();
             ChatClientServer.getInstance().run();
 
 //            ServerInfo s1 = ServerState.getInstance().getServerInfoById("s1");
