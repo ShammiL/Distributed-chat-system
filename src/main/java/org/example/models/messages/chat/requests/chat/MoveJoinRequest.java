@@ -1,9 +1,11 @@
-package org.example.models.requests;
+package org.example.models.messages.chat.requests.chat;
+
+import org.example.models.messages.chat.requests.RequestConstants;
 
 public class MoveJoinRequest extends AbstractRoomRequest {
 
-    private String identity;
-    private String former;
+    private final String identity;
+    private final String former;
 
     public MoveJoinRequest(String former, String identity, String roomId) {
         super(RequestConstants.MOVE_JOIN, roomId);

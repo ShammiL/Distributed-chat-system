@@ -1,4 +1,4 @@
-package org.example.models.reply;
+package org.example.models.messages.chat.reply;
 
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;

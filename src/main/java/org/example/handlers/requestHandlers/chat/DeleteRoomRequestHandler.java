@@ -1,11 +1,11 @@
-package org.example.handlers.requestHandlers;
+package org.example.handlers.requestHandlers.chat;
 
 import io.netty.channel.ChannelId;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
-import org.example.models.reply.ReplyObjects;
-import org.example.models.requests.AbstractRequest;
-import org.example.models.requests.DeleteRoomRequest;
+import org.example.models.messages.chat.reply.ReplyObjects;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.chat.DeleteRoomRequest;
 import org.example.models.room.LocalRoom;
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
@@ -13,10 +13,10 @@ import org.json.simple.JSONObject;
 import java.util.Map;
 
 public class DeleteRoomRequestHandler extends AbstractRequestHandler {
-    private DeleteRoomRequest request;
+    private final DeleteRoomRequest request;
     private boolean approved;
 
-    public DeleteRoomRequestHandler(AbstractRequest request, IClient client) {
+    public DeleteRoomRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
         this.request = (DeleteRoomRequest) request;
     }

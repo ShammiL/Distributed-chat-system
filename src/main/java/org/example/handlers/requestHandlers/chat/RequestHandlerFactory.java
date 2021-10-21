@@ -1,12 +1,12 @@
-package org.example.handlers.requestHandlers;
+package org.example.handlers.requestHandlers.chat;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.example.models.client.IClient;
-import org.example.models.requests.*;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.chat.*;
 
 public class RequestHandlerFactory {
 
-    public static AbstractRequestHandler requestHandler(AbstractRequest request, IClient client){
+    public static AbstractRequestHandler requestHandler(AbstractChatRequest request, IClient client){
         if (request instanceof NewIdentityRequest) {
             return new NewIdentityRequestHandler(request, client);
         }

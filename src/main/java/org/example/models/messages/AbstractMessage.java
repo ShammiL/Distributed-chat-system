@@ -1,10 +1,10 @@
-package org.example.models.requests;
+package org.example.models.messages;
 
-public abstract class AbstractRequest {
+public abstract class AbstractMessage {
 
     private String type;
 
-    public AbstractRequest(String type) {
+    public AbstractMessage(String type) {
         this.type = type;
     }
 

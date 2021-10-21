@@ -12,7 +12,7 @@ import org.example.models.client.IClient;
 import org.example.models.room.Room;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
-import org.example.services.client.decoders.RequestObjectDecoder;
+import org.example.services.client.decoders.ChatRequestObjectDecoder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,11 +25,11 @@ public class ChatClientServer {
     public static Map<ChannelId, IClient> channelIdClient = new ConcurrentHashMap<>();
     public static Map<String, Room> localRoomIdLocalRoom = new ConcurrentHashMap<>();
 
-    private ServerInfo serverInfo;
+    private final ServerInfo serverInfo;
 
     private ChatClientServer() {
         this.serverInfo = ServerState.getInstance().getServerInfo();
-        this.id = serverInfo.getServerId();
+        id = serverInfo.getServerId();
         this.port = serverInfo.getClientPort();
         localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
     }
@@ -65,7 +65,7 @@ public class ChatClientServer {
                         protected void initChannel(SocketChannel socketChannel) throws IOException {
                             socketChannel.pipeline().addLast(
                                     new JsonObjectDecoder(),
-                                    new RequestObjectDecoder(),
+                                    new ChatRequestObjectDecoder(),
                                     new StringEncoder(CharsetUtil.UTF_8),
                                     new ChatServerHandler()
                             );

@@ -1,17 +1,16 @@
-package org.example.handlers.requestHandlers;
+package org.example.handlers.requestHandlers.chat;
 
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
-import org.example.models.reply.ReplyObjects;
-import org.example.models.requests.AbstractRequest;
-import org.example.models.requests.MessageRequest;
-import org.example.models.requests.NewIdentityRequest;
+import org.example.models.messages.chat.reply.ReplyObjects;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.chat.MessageRequest;
 import org.json.simple.JSONObject;
 
 public class MessageRequestHandler extends AbstractRequestHandler{
-    private MessageRequest request;
+    private final MessageRequest request;
 
-    public MessageRequestHandler(AbstractRequest request, IClient client) {
+    public MessageRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
         this.request = (MessageRequest)  request;
     }

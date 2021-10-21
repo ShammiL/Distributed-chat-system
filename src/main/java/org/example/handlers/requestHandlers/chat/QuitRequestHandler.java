@@ -1,24 +1,21 @@
-package org.example.handlers.requestHandlers;
+package org.example.handlers.requestHandlers.chat;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
-import org.example.models.reply.ReplyObjects;
-import org.example.models.requests.AbstractRequest;
-import org.example.models.requests.DeleteRoomRequest;
-import org.example.models.requests.QuitRequest;
+import org.example.models.messages.chat.reply.ReplyObjects;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.chat.QuitRequest;
 import org.example.models.room.LocalRoom;
-import org.example.models.room.Room;
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
 
 public class QuitRequestHandler extends AbstractRequestHandler{
-    private QuitRequest request;
+    private final QuitRequest request;
     private String identity;
     private String roomId;
     private String formerRoomId;
 
-    public QuitRequestHandler(AbstractRequest request, IClient client) {
+    public QuitRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
         this.request = (QuitRequest) request;
     }

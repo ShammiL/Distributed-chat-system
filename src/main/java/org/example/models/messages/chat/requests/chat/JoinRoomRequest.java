@@ -1,4 +1,6 @@
-package org.example.models.requests;
+package org.example.models.messages.chat.requests.chat;
+
+import org.example.models.messages.chat.requests.RequestConstants;
 
 public class JoinRoomRequest extends AbstractRoomRequest {
 

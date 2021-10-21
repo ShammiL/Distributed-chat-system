@@ -8,9 +8,9 @@ import java.util.concurrent.ConcurrentMap;
 public class ServerState {
     private static ServerState instance;
     private ServerInfo serverInfo;
-    private ConcurrentMap<String, ServerInfo> serversList = new ConcurrentHashMap<>(); // (serverId, serverinfp)
-    private ConcurrentMap<String, ServerInfo> higherServerInfo = new ConcurrentHashMap<>();
-    private ConcurrentMap<String, ServerInfo> lowerServerInfo = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ServerInfo> serversList = new ConcurrentHashMap<>(); // (serverId, serverinfp)
+    private final ConcurrentMap<String, ServerInfo> higherServerInfo = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ServerInfo> lowerServerInfo = new ConcurrentHashMap<>();
 
     private ServerState() {
     }
@@ -62,8 +62,8 @@ public class ServerState {
 
     private int compare(String myServerId, String externalServerId) {
         if (null != myServerId && null != externalServerId) {
-            Integer server1Id = Integer.parseInt(myServerId.substring(1, myServerId.length()));
-            Integer server2Id = Integer.parseInt(externalServerId.substring(1, externalServerId.length()));
+            Integer server1Id = Integer.parseInt(myServerId.substring(1));
+            Integer server2Id = Integer.parseInt(externalServerId.substring(1));
             return server1Id - server2Id;
         }
         return 0;

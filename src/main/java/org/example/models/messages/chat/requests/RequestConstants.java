@@ -1,4 +1,4 @@
-package org.example.models.requests;
+package org.example.models.messages.chat.requests;
 
 public final class RequestConstants {
 
@@ -11,4 +11,6 @@ public final class RequestConstants {
     public final static String DELETE_ROOM = "deleteroom";
     public final static String MESSAGE = "message";
     public final static String QUIT = "quit";
+
+    private RequestConstants(){}
 }

@@ -1,20 +1,22 @@
 package org.example.services.client.deserializers;
 
 import com.google.gson.*;
-import org.example.models.requests.*;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.*;
+import org.example.models.messages.chat.requests.chat.*;
 
 import java.lang.reflect.Type;
 
-public class RequestDeserializer implements JsonDeserializer<AbstractRequest> {
+public class ChatRequestDeserializer implements JsonDeserializer<AbstractChatRequest> {
 
     @Override
-    public AbstractRequest deserialize(JsonElement jsonElement, Type type,
-                                       JsonDeserializationContext jsonDeserializationContext)
+    public AbstractChatRequest deserialize(JsonElement jsonElement, Type type,
+                                           JsonDeserializationContext jsonDeserializationContext)
             throws JsonParseException {
 
         final JsonObject requestJson = jsonElement.getAsJsonObject();
 
-        AbstractRequest request;
+        AbstractChatRequest request;
 
         switch (requestJson.get("type").getAsString()) {
             case RequestConstants.CREATE_ROOM:

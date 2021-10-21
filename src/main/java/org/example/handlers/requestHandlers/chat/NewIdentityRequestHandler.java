@@ -1,24 +1,23 @@
-package org.example.handlers.requestHandlers;
+package org.example.handlers.requestHandlers.chat;
 
-import com.google.gson.JsonObject;
 import io.netty.channel.ChannelId;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
-import org.example.models.reply.ReplyObjects;
-import org.example.models.requests.AbstractRequest;
-import org.example.models.requests.NewIdentityRequest;
+import org.example.models.messages.chat.reply.ReplyObjects;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.chat.NewIdentityRequest;
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
 
 import java.util.Map;
 
 public class NewIdentityRequestHandler extends AbstractRequestHandler{
-    private NewIdentityRequest request;
+    private final NewIdentityRequest request;
     private boolean approved;
     private String identity;
 
 
-    public NewIdentityRequestHandler(AbstractRequest request, IClient client) {
+    public NewIdentityRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
         this.request = (NewIdentityRequest)  request;
     }

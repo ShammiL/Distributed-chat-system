@@ -1,11 +1,11 @@
-package org.example.handlers.requestHandlers;
+package org.example.handlers.requestHandlers.chat;
 
 
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
-import org.example.models.reply.ReplyObjects;
-import org.example.models.requests.AbstractRequest;
-import org.example.models.requests.CreateRoomRequest;
+import org.example.models.messages.chat.reply.ReplyObjects;
+import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.models.messages.chat.requests.chat.CreateRoomRequest;
 import org.example.models.room.LocalRoom;
 import org.example.models.room.Room;
 import org.example.services.client.ChatClientServer;
@@ -14,11 +14,11 @@ import org.json.simple.JSONObject;
 
 
 public class CreateRoomRequestHandler extends AbstractRequestHandler {
-    private CreateRoomRequest request;
+    private final CreateRoomRequest request;
     private boolean approved;
     private String roomId;
 
-    public CreateRoomRequestHandler(AbstractRequest request, IClient client) {
+    public CreateRoomRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
         this.request = (CreateRoomRequest) request;
     }
