@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.services.client.ChatClientServer;
+import org.example.services.coordination.server.CoordinationServer;
 import org.example.services.server.ConfigReaderService;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -21,7 +22,11 @@ public class Main {
             serverConfig = values.getServerConfig();
 
             new ConfigReaderService().readFile(serverConfig, serverId);
+            CoordinationServer.getInstance().run();
             ChatClientServer.getInstance().run();
+
+//            ServerInfo s1 = ServerState.getInstance().getServerInfoById("s1");
+//            MessageSender.releaseIdentity(s1, "test", "room");
 
         } catch (CmdLineException e) {
             e.getLocalizedMessage();
