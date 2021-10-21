@@ -9,6 +9,7 @@ import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.example.models.client.IClient;
+import org.example.models.room.LocalRoom;
 import org.example.models.room.Room;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
@@ -31,7 +32,8 @@ public class ChatClientServer {
         this.serverInfo = ServerState.getInstance().getServerInfo();
         this.id = serverInfo.getServerId();
         this.port = serverInfo.getClientPort();
-        localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
+//        localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
+        localRoomIdLocalRoom.put("MainHall-" + id, new LocalRoom("MainHall-" + id, ""));
     }
 
 

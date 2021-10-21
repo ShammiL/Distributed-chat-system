@@ -1,7 +1,11 @@
 package org.example.models.reply;
 
 import org.example.services.client.ChatClientServer;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import java.lang.reflect.Array;
+import java.util.List;
 
 public class ReplyObjects {
     private ReplyObjects() {}
@@ -51,6 +55,7 @@ public class ReplyObjects {
         return msg;
     }
 
+    @SuppressWarnings("unchecked")
     public static JSONObject deleteRoomClientMessage(String roomId, boolean approved){
         JSONObject msg = new JSONObject();
         msg.put("type", "deleteroom");
@@ -59,11 +64,22 @@ public class ReplyObjects {
         return msg;
     }
 
+    @SuppressWarnings("unchecked")
     public static JSONObject deleteRoomServerMessage(String roomId){
         JSONObject msg = new JSONObject();
         msg.put("type", "deleteroom");
         msg.put("roomid", roomId);
         msg.put("serverid", ChatClientServer.getInstance().getId());
+        return msg;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static JSONObject roomContents(String roomId, List<String> identities, String owner) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "roomcontents");
+        msg.put("roomid", roomId);
+        msg.put("identities", identities);
+        msg.put("owner", owner);
         return msg;
     }
 }

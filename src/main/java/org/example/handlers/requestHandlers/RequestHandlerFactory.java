@@ -31,6 +31,9 @@ public class RequestHandlerFactory {
         if (request instanceof QuitRequest) {
             return new QuitRequestHandler(request, client);
         }
+        if(request instanceof WhoRequest) {
+            return new WhoRequestHandler(client);
+        }
         return null;
     }
 }
