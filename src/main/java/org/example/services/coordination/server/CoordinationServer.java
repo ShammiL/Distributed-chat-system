@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
+import org.apache.log4j.Logger;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.decoders.CoordinationRequestDecoder;
@@ -19,6 +20,7 @@ public class CoordinationServer {
     private final int port;
 
     private final ServerInfo serverInfo;
+    Logger logger = Logger.getLogger(CoordinationServer.class);
 
     private CoordinationServer() {
         this.serverInfo = ServerState.getInstance().getServerInfo();
@@ -55,6 +57,7 @@ public class CoordinationServer {
                     .option(ChannelOption.SO_BACKLOG, 128);
             ChannelFuture future = bootstrap.bind(port).sync();
             future.channel().closeFuture().sync();
+            logger.info("Coordination server started");
         } finally {
             parentGroup.shutdownGracefully();
             childGroup.shutdownGracefully();
