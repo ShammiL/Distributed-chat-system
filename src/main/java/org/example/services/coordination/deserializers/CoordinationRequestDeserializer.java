@@ -35,10 +35,18 @@ public class CoordinationRequestDeserializer implements JsonDeserializer<Abstrac
                 request = jsonDeserializationContext.deserialize(jsonElement, HeartbeatMessage.class);
                 break;
             case "identity_release_request":
-                request = jsonDeserializationContext.deserialize(jsonElement, IdentityReleaseRequest.class);
+                request = new IdentityReleaseRequest(
+                        requestJson.get("identity").getAsString(),
+                        requestJson.get("identityType").getAsString(),
+                        requestJson.get("serverName").getAsString()
+                );
                 break;
             case "identity_reserve_request":
-                request = jsonDeserializationContext.deserialize(jsonElement, IdentityReserveRequest.class);
+                request = new IdentityReserveRequest(
+                        requestJson.get("identity").getAsString(),
+                        requestJson.get("identityType").getAsString(),
+                        requestJson.get("serverName").getAsString()
+                );
                 break;
             default:
                 throw new JsonParseException("Unexpected coordination message type");
