@@ -20,6 +20,9 @@ public class CoordinationServer {
 
     private final ServerInfo serverInfo;
 
+    public void SelectCoordinator() {
+
+    }
     private CoordinationServer() {
         this.serverInfo = ServerState.getInstance().getServerInfo();
         this.port = serverInfo.getCoordinationPort();
