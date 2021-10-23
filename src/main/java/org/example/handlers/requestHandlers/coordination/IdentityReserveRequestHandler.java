@@ -15,7 +15,12 @@ public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHa
 
     @Override
     public JSONObject handleRequest() {
-        System.out.println("Received Identity Reserve Request from: " + server.getServerId());
+        System.out.println("Received Identity Reserve Request from: " +
+                server.getServerId() + " " +
+                request.getIdentity() + " " +
+                request.getIdentityType() + " " +
+                request.getServerName()
+        );
         return null;
     }
 }

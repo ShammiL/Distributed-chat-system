@@ -1,5 +1,6 @@
 package org.example.services.coordination.server;
 
+//import com.sun.security.ntlm.Server;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -10,9 +11,12 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
+import org.example.services.coordination.MessageSender;
 import org.example.services.coordination.decoders.CoordinationRequestDecoder;
+import org.example.services.coordination.election.BullyElection;
 
 import java.io.IOException;
+import java.net.ConnectException;
 
 public class CoordinationServer {
     private static CoordinationServer instance;
@@ -20,9 +24,6 @@ public class CoordinationServer {
 
     private final ServerInfo serverInfo;
 
-    public void SelectCoordinator() {
-
-    }
     private CoordinationServer() {
         this.serverInfo = ServerState.getInstance().getServerInfo();
         this.port = serverInfo.getCoordinationPort();
@@ -35,6 +36,24 @@ public class CoordinationServer {
         return instance;
     }
 
+    public void SelectCoordinator() {
+        System.out.println("select coordinator");
+        if(ServerState.getInstance().getServersListAsArrayList().isEmpty()) {
+            System.out.println("only me");
+            ServerState.getInstance().setCoordinator(serverInfo);
+        } else {
+            if(ServerState.getInstance().getHigherServerInfo().isEmpty()){
+//                if there are no higher priority servers
+                System.out.println("there are no higher priority servers");
+                new BullyElection().informAndSetNewCoordinator(
+                        ServerState.getInstance().getLowerServerInfo()
+                );
+            } else{
+                new BullyElection().startElection(ServerState.getInstance().getHigherServerInfo());
+            }
+        }
+
+    }
     public void run() throws Exception {
         EventLoopGroup parentGroup = new NioEventLoopGroup();
         EventLoopGroup childGroup = new NioEventLoopGroup();

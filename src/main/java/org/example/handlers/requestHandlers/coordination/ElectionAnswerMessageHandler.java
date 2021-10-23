@@ -14,6 +14,8 @@ public class ElectionAnswerMessageHandler extends AbstractCoordinationRequestHan
     @Override
     public JSONObject handleRequest() {
         System.out.println("Received ElectionAnswer from: " + server.getServerId());
+
+//        TODO wait for coordinator msg
         return null;
     }
 }
