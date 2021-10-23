@@ -40,8 +40,8 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
                         JSONObject replyC = clientToMainRoom(clientC);
                         sendResponse(replyC);
                         broadcast(replyC, clientC.getRoom());
-                        broadcast(replyC, ChatClientServer.getMainHal());
-                        clientC.setRoom(ChatClientServer.getMainHal());
+                        broadcast(replyC, ChatClientServer.getInstance().getMainHal());
+                        clientC.setRoom(ChatClientServer.getInstance().getMainHal());
 
                     }
                 }
