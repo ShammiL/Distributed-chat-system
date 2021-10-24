@@ -61,6 +61,14 @@ public class BullyElection {
         MessageSender.sendElectionCoordinatorMessage(serverInfo);
     }
 
+    public void sendCoordinatorInformationMessage(ServerInfo serverInfo) {
+        try {
+            MessageSender.sendCoordinatorInformationMessage(serverInfo);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void setNewCoordinator(ServerInfo newCoordinator){
         if(ServerState.getInstance().getCoordinator() == null){
             System.out.println("setNewCoordinator method when null");

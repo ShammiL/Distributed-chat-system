@@ -1,5 +1,6 @@
 package org.example.services.coordination;
 
+import org.example.models.messages.coordination.election.CoordinatorInformationMessage;
 import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
@@ -33,6 +34,12 @@ public final class MessageSender {
 
     }
 
+    public static void sendCoordinatorInformationMessage(ServerInfo server) throws InterruptedException {
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
+        client.sendMessageAndGetStatus(new CoordinatorInformationMessage(ServerState.getInstance().getServerInfo().getServerId()));
+
+    }
+
     public static void sendHeartBeatMessage(ServerInfo server) throws InterruptedException {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
         client.sendMessageAndGetStatus(new HeartbeatMessage(ServerState.getInstance().getServerInfo().getServerId()));
@@ -54,4 +61,6 @@ public final class MessageSender {
                 identityType,ServerState.getInstance().getServerInfo().getServerId()));
         return response.get();
     }
+
+
 }
