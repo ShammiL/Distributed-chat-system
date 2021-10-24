@@ -1,5 +1,7 @@
 package org.example.models.server;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +13,9 @@ public class ServerState {
     private final ConcurrentMap<String, ServerInfo> serversList = new ConcurrentHashMap<>(); // (serverId, serverinfp)
     private final ConcurrentMap<String, ServerInfo> higherServerInfo = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, ServerInfo> lowerServerInfo = new ConcurrentHashMap<>();
+
+    private ServerInfo coordinator;
+    private Logger logger = Logger.getLogger(ServerState.class);
 
     private ServerState() {
     }
@@ -67,5 +72,13 @@ public class ServerState {
             return server1Id - server2Id;
         }
         return 0;
+    }
+
+    public ServerInfo getCoordinator() {
+        return coordinator;
+    }
+
+    public void setCoordinator(ServerInfo coordinator) {
+        this.coordinator = coordinator;
     }
 }
