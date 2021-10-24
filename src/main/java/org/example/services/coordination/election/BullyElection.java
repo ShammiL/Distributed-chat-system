@@ -11,15 +11,20 @@ public class BullyElection {
 
     public void startElection(List<ServerInfo> higherServerList){
         System.out.println("startElection");
+        int notAlive = 0;
         for (ServerInfo higherServer : higherServerList) {
             System.out.println("higher server -> " + higherServer.getServerId());
             try {
                 sendElectionStartMessage(higherServer);
             } catch (ConnectException | InterruptedException e) {
                 System.out.println("higher server " + higherServer.getServerId() +" not alive");
+                notAlive++;
 //                e.printStackTrace();
             }
 
+        }
+        if (notAlive == higherServerList.size() && higherServerList.size() != 0) {
+            informAndSetNewCoordinator(ServerState.getInstance().getLowerServerInfo());
         }
     }
 
@@ -58,7 +63,7 @@ public class BullyElection {
 
     public void setNewCoordinator(ServerInfo newCoordinator){
         if(ServerState.getInstance().getCoordinator() == null){
-            System.out.println("setNewCoordinator method");
+            System.out.println("setNewCoordinator method when null");
             ServerState.getInstance().setCoordinator(newCoordinator);
         } else{
             if (!ServerState.getInstance().getCoordinator().equals(newCoordinator)){

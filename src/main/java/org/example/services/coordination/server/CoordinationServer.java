@@ -38,20 +38,17 @@ public class CoordinationServer {
 
     public void SelectCoordinator() {
         System.out.println("select coordinator");
-        if(ServerState.getInstance().getServersListAsArrayList().isEmpty()) {
-            System.out.println("only me");
-            ServerState.getInstance().setCoordinator(serverInfo);
-        } else {
-            if(ServerState.getInstance().getHigherServerInfo().isEmpty()){
+
+        if(ServerState.getInstance().getHigherServerInfo().isEmpty()){
 //                if there are no higher priority servers
-                System.out.println("there are no higher priority servers");
-                new BullyElection().informAndSetNewCoordinator(
-                        ServerState.getInstance().getLowerServerInfo()
-                );
-            } else{
-                new BullyElection().startElection(ServerState.getInstance().getHigherServerInfo());
-            }
+            System.out.println("there are no higher priority servers");
+            new BullyElection().informAndSetNewCoordinator(
+                    ServerState.getInstance().getLowerServerInfo()
+            );
+        } else{
+            new BullyElection().startElection(ServerState.getInstance().getHigherServerInfo());
         }
+
 
     }
     public void run() throws Exception {

@@ -59,7 +59,7 @@ public class ServerState {
     public synchronized void setServersList(List<ServerInfo> serversList, String myServerId) {
         for (ServerInfo server : serversList) {
             if (!server.getServerId().equals(myServerId)) {
-//                System.out.println("setServersList: " + server.getServerId());
+                System.out.println("setServersList: " + server.getServerId());
                 addServer(server, myServerId);
             } else {
                 this.serverInfo = server;
