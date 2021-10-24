@@ -1,5 +1,6 @@
 package org.example.services.coordination.election;
 
+import org.example.models.server.LeaderState;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.MessageSender;
@@ -55,6 +56,7 @@ public class BullyElection {
             }
         }
         setNewCoordinator(ServerState.getInstance().getServerInfo());
+
     }
 
     private void sendElectionCoordinatorMessage(ServerInfo serverInfo) throws InterruptedException, ConnectException {
@@ -73,6 +75,7 @@ public class BullyElection {
         if(ServerState.getInstance().getCoordinator() == null){
             System.out.println("setNewCoordinator method when null");
             ServerState.getInstance().setCoordinator(newCoordinator);
+
         } else{
             if (!ServerState.getInstance().getCoordinator().equals(newCoordinator)){
                 System.out.println("setNewCoordinator method");
@@ -80,4 +83,5 @@ public class BullyElection {
             }
         }
     }
+
 }
