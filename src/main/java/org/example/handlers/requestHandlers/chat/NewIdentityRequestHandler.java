@@ -6,7 +6,9 @@ import org.example.models.client.IClient;
 import org.example.models.messages.chat.reply.ReplyObjects;
 import org.example.models.messages.chat.AbstractChatRequest;
 import org.example.models.messages.chat.requests.chat.NewIdentityRequest;
+import org.example.models.server.ServerState;
 import org.example.services.client.ChatClientServer;
+import org.example.services.coordination.MessageSender;
 import org.json.simple.JSONObject;
 
 import java.util.Map;
@@ -35,7 +37,12 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
     public JSONObject processRequest() {
         identity = request.getIdentity();
         System.out.println("identity : "+identity);
-        approved = approveIdentity(identity);
+        try {
+            approved = approveIdentity(identity);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         String approvalString;
         if (approved) approvalString = "true";
         else approvalString = "false";
@@ -58,7 +65,18 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
         }
     }
 
-    public boolean approveIdentity(String identity){
+    public boolean approveIdentity(String identity) throws InterruptedException {
+//        MessageSender.reserveIdentity(
+//                ServerState.getInstance().getServerInfoById("s2"),
+//                identity,
+//                "client"
+//        );
+
+//        MessageSender.releaseIdentity(
+//                ServerState.getInstance().getServerInfoById("s2"),
+//                identity,
+//                "client"
+//        );
         if (validateIdentityValue(identity)){
             return checkUniqueIdentity(identity);
         }

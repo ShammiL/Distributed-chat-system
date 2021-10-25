@@ -1,6 +1,7 @@
 package org.example.handlers.requestHandlers.coordination;
 
 import org.example.models.messages.AbstractMessage;
+import org.example.models.messages.coordination.election.CoordinatorInformationMessage;
 import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
@@ -29,6 +30,9 @@ public class CoordinationRequestHandlerFactory {
         }
         if (request instanceof IdentityReserveRequest){
             return new IdentityReserveRequestHandler(server, (IdentityReserveRequest) request);
+        }
+        if (request instanceof CoordinatorInformationMessage) {
+            return new CoordinatorInformationMessageHandler(server, (CoordinatorInformationMessage) request);
         }
         return null;
     }

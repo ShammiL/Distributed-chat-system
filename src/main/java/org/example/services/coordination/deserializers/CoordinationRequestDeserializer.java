@@ -2,6 +2,7 @@ package org.example.services.coordination.deserializers;
 
 import com.google.gson.*;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.election.CoordinatorInformationMessage;
 import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
@@ -48,6 +49,10 @@ public class CoordinationRequestDeserializer implements JsonDeserializer<Abstrac
                         requestJson.get("serverName").getAsString()
                 );
                 break;
+            case "coordinatorinformation":
+                request = jsonDeserializationContext.deserialize(jsonElement, CoordinatorInformationMessage.class);
+                break;
+
             default:
                 throw new JsonParseException("Unexpected coordination message type");
         }

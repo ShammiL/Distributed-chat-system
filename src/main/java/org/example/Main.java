@@ -31,6 +31,7 @@ public class Main {
             });
 
             coordinatorThread.start();
+            CoordinationServer.getInstance().SelectCoordinator();
             ChatClientServer.getInstance().run();
 
 //            ServerInfo s1 = ServerState.getInstance().getServerInfoById("s1");

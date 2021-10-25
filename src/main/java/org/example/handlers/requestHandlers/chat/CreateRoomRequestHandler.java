@@ -9,7 +9,7 @@ import org.example.models.messages.chat.requests.chat.CreateRoomRequest;
 import org.example.models.room.LocalRoom;
 import org.example.models.room.Room;
 import org.example.services.client.ChatClientServer;
-import org.example.services.client.UtilService;
+import org.example.services.UtilService;
 import org.json.simple.JSONObject;
 
 
