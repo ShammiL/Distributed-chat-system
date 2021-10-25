@@ -1,15 +1,11 @@
 package org.example.models.server;
 
-import io.netty.channel.ChannelId;
-import org.example.models.client.Client;
 import org.example.models.client.GlobalClient;
-import org.example.models.client.IClient;
 import org.example.models.room.GlobalRoom;
-import org.example.models.room.Room;
 import org.example.services.client.ChatClientServer;
+import org.example.services.coordination.ListServices;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class LeaderState {
     private static LeaderState instance;
@@ -37,33 +33,10 @@ public class LeaderState {
         return globalRoomList;
     }
 
-    public Map<String, GlobalClient> convertGlobalClientList(Map<ChannelId, IClient> localClientList) {
-        Map<String, GlobalClient> globalCliens = new ConcurrentHashMap<>();
-        for (Map.Entry<ChannelId, IClient> entry : localClientList.entrySet()) {
-            Client client = (Client) entry.getValue();
-            GlobalClient gClient = new GlobalClient(client.getIdentity(), ServerState.getInstance().getServerInfo().getServerId());
-            globalCliens.put(gClient.getIdentity(), gClient);
-
-        }
-
-        return globalCliens;
-    }
-
-    public Map<String, GlobalRoom> convertGlobalRoomList(Map<String, Room> localRoomList) {
-        Map<String, GlobalRoom> globalRooms = new ConcurrentHashMap<>();
-        for (Map.Entry<String, Room> entry : localRoomList.entrySet()) {
-            GlobalRoom gRoom = new GlobalRoom(entry.getValue().getRoomId(), ServerState.getInstance().getServerInfo().getServerId());
-            globalRooms.put(gRoom.getRoomId(), gRoom);
-
-        }
-
-        return globalRooms;
-    }
-
     public void assignOwnLists() {
         System.out.println("assign own lists");
-        globalClientList = convertGlobalClientList(ChatClientServer.channelIdClient);
-        globalRoomList = convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
+        globalClientList = ListServices.convertGlobalClientList(ChatClientServer.channelIdClient);
+        globalRoomList = ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
         printLists();
     }
 

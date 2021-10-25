@@ -1,17 +1,12 @@
 package org.example.models.messages.coordination.election;
 
-import io.netty.channel.ChannelId;
-import org.example.models.client.Client;
 import org.example.models.client.GlobalClient;
-import org.example.models.client.IClient;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
 import org.example.models.room.GlobalRoom;
-import org.example.models.room.Room;
-import org.example.models.server.ServerState;
 import org.example.services.client.ChatClientServer;
+import org.example.services.coordination.ListServices;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class CoordinatorInformationMessage extends AbstractCoordinationMessage {
     private Map<String, GlobalClient> globalClientList;
@@ -20,8 +15,8 @@ public class CoordinatorInformationMessage extends AbstractCoordinationMessage {
 
     public CoordinatorInformationMessage(String serverName) {
         super("coordinatorinformation", serverName);
-        this.globalRoomList = convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
-        this.globalClientList = convertGlobalClientList(ChatClientServer.channelIdClient);
+        this.globalRoomList = ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
+        this.globalClientList = ListServices.convertGlobalClientList(ChatClientServer.channelIdClient);
     }
 
     public Map<String, GlobalClient> getGlobalClientList() {
@@ -40,26 +35,4 @@ public class CoordinatorInformationMessage extends AbstractCoordinationMessage {
         this.globalClientList = globalClientList;
     }
 
-    private Map<String, GlobalClient> convertGlobalClientList(Map<ChannelId, IClient> localClientList) {
-        Map<String, GlobalClient> globalClients = new ConcurrentHashMap<>();
-        for (Map.Entry<ChannelId, IClient> entry : localClientList.entrySet()) {
-            Client client = (Client) entry.getValue();
-            GlobalClient gClient = new GlobalClient(client.getIdentity(), ServerState.getInstance().getServerInfo().getServerId());
-            globalClients.put(gClient.getIdentity(), gClient);
-
-        }
-
-        return globalClients;
-    }
-
-    private Map<String, GlobalRoom> convertGlobalRoomList(Map<String, Room> localRoomList) {
-        Map<String, GlobalRoom> globalRooms = new ConcurrentHashMap<>();
-        for (Map.Entry<String, Room> entry : localRoomList.entrySet()) {
-            GlobalRoom gRoom = new GlobalRoom(entry.getValue().getRoomId(), ServerState.getInstance().getServerInfo().getServerId());
-            globalRooms.put(gRoom.getRoomId(), gRoom);
-
-        }
-
-        return globalRooms;
-    }
 }
