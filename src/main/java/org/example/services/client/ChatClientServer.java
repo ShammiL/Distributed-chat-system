@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
+import org.apache.log4j.Logger;
 import org.example.models.client.IClient;
 import org.example.models.room.Room;
 import org.example.models.server.ServerInfo;
@@ -26,13 +27,18 @@ public class ChatClientServer {
     public static Map<String, Room> localRoomIdLocalRoom = new ConcurrentHashMap<>();
 
     private final ServerInfo serverInfo;
+    private Logger logger = Logger.getLogger(ChatClientServer.class);
 
     private ChatClientServer() {
         this.serverInfo = ServerState.getInstance().getServerInfo();
         id = serverInfo.getServerId();
         this.port = serverInfo.getClientPort();
         localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
+
         // todo: send to coordinator
+
+        logger.info("ChatClientServer instance created");
+
     }
 
 
