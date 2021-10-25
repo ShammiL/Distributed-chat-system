@@ -25,6 +25,9 @@ public class RequestHandlerFactory {
         if (request instanceof ListRequest){
             return null;
         }
+        if (request instanceof WhoRequest) {
+            return null;
+        }
         if (request instanceof MessageRequest){
             return new MessageRequestHandler(request, client);
         }

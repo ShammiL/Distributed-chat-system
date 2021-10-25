@@ -22,7 +22,7 @@ public class CoordinationRequestDeserializerTest extends TestCase {
         super.setUp();
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationRequestDeserializer());
+        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationMessageDeserializer());
         gson = gsonBuilder.create();
     }
 

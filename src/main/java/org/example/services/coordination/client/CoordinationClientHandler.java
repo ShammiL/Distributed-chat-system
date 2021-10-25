@@ -3,9 +3,12 @@ package org.example.services.coordination.client;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
+import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
 import org.example.models.messages.coordination.leader.request.AbstractIdentityRequest;
 import org.json.simple.JSONObject;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
@@ -13,16 +16,26 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     private final AbstractCoordinationMessage message;
     private final AtomicBoolean requestSent = new AtomicBoolean(false);
     private final AtomicBoolean status;
+    private final boolean isFireAndForget;
+
+    private static String[] nonFireAndForgetTypes = {
+            "identity_reserve_request",
+            "identity_release_request",
+            "election_start",
+    };
+
     public CoordinationClientHandler(AbstractCoordinationMessage message, AtomicBoolean status){
         this.message = message;
         this.status = status;
+        isFireAndForget = Arrays.stream(nonFireAndForgetTypes).noneMatch(type -> type.equals(message.getType()));
     }
+
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         ctx.writeAndFlush(message);
-        if (!(message instanceof AbstractIdentityRequest)){
+        if (isFireAndForget){
             ctx.close();
         }
         requestSent.set(true);
@@ -32,21 +45,13 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
         if (requestSent.get()) {
-            JSONObject object = (JSONObject)msg;
-            switch (message.getType()){
-                case "identity_release_request":
-                    handleIdentityReleaseResponse(
-                            (String) object.get("identity"),
-                            (String) object.get("identityType"),
-                            (String) object.get("status")
-                    );
+            AbstractCoordinationMessage response = (AbstractCoordinationMessage) msg;
+            switch (response.getType()){
+                case "identity_release_response":
+                    handleIdentityReleaseResponse((IdentityReleaseResponse) response);
                     break;
-                case "identity_reserve_request":
-                    handleIdentityReserveResponse(
-                            (String) object.get("identity"),
-                            (String) object.get("identityType"),
-                            (String) object.get("status")
-                    );
+                case "identity_reserve_response":
+                    handleIdentityReserveResponse((IdentityReserveResponse)response);
                     break;
                 default:
             }
@@ -54,23 +59,31 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void handleIdentityReserveResponse(String identity, String identityType, String status) {
+    private void handleIdentityReserveResponse(IdentityReserveResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
-        if (request.getIdentity().equals(identity)
-                && request.getIdentityType().equals(identityType) && "success".equals(status)) {
+        if (request.getIdentity().equals(response.getIdentity())
+                && request.getIdentityType().equals(response.getIdentityType()) && "success".equals(response.getStatus())) {
             // Reserve identity successful
             this.status.set(true);
         }
         //TODO: else?
     }
 
-    private void handleIdentityReleaseResponse(String identity, String identityType, String status) {
+    private void handleIdentityReleaseResponse(IdentityReleaseResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
-        if (request.getIdentity().equals(identity)
-        && request.getIdentityType().equals(identityType) && "success".equals(status)) {
+        if (request.getIdentity().equals(response.getIdentity())
+        && request.getIdentityType().equals(response.getIdentityType())
+                && "success".equals(response.getStatus())) {
             // Release identity successful
             this.status.set(true);
         }
         //TODO: else?
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        cause.printStackTrace();
+        ctx.close();
     }
 }

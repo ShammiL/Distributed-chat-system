@@ -6,7 +6,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import junit.framework.TestCase;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.election.CoordinatorInformationMessage;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
+import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +24,7 @@ public class CoordinationRequestSerializerTest extends TestCase {
         super.setUp();
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationRequestSerializer());
+//        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationMessageSerializer());
         gson = gsonBuilder.create();
     }
 
@@ -30,5 +32,12 @@ public class CoordinationRequestSerializerTest extends TestCase {
     public void heartbeatTest() {
         String json = gson.toJson(new HeartbeatMessage("s1"));
         assertEquals(json,"{\"serverName\":\"s1\",\"type\":\"heartbeat\"}");
+    }
+
+    @Test
+    public void identityReserveRequestTest() {
+        String json = gson.toJson(new IdentityReserveRequest("test", "room", "s1"));
+        assertEquals(json,"{\"identity\":\"test\",\"identity_type\":\"room\",\"serverName\":\"s1\"," +
+                "\"type\":\"identity_reserve_request\"}");
     }
 }
