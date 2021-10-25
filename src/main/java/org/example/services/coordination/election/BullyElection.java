@@ -20,7 +20,6 @@ public class BullyElection {
             } catch (ConnectException | InterruptedException e) {
                 System.out.println("higher server " + higherServer.getServerId() +" not alive");
                 notAlive++;
-//                e.printStackTrace();
             }
 
         }
@@ -52,7 +51,6 @@ public class BullyElection {
                 sendElectionCoordinatorMessage(lowerServer);
             } catch (ConnectException | InterruptedException e) {
                 System.out.println("lower server " + lowerServer.getServerId() +" not alive");
-//                e.printStackTrace();
             }
         }
         setNewCoordinator(ServerState.getInstance().getServerInfo());
@@ -72,16 +70,36 @@ public class BullyElection {
     }
 
     public void setNewCoordinator(ServerInfo newCoordinator){
-        if(ServerState.getInstance().getCoordinator() == null){
-            System.out.println("setNewCoordinator method when null");
-            ServerState.getInstance().setCoordinator(newCoordinator);
+        if (ServerState.getInstance().getServerInfo().equals(newCoordinator)){ // check if server is the leader
 
-        } else{
-            if (!ServerState.getInstance().getCoordinator().equals(newCoordinator)){
-                System.out.println("setNewCoordinator method");
+            if (!newCoordinator.equals(ServerState.getInstance().getCoordinator())){ // check previously not the leader
+                System.out.println("I am the leader");
                 ServerState.getInstance().setCoordinator(newCoordinator);
+                LeaderState.getInstance().assignOwnLists(); // assign own list by newly appointed leader
+
             }
+
         }
+        else { // not leader in this election
+            if (ServerState.getInstance().getServerInfo().equals(ServerState.getInstance().getCoordinator())){
+                // check the leader in the previous election
+                LeaderState.destroyLeaderInstance(); //
+            }
+            if(ServerState.getInstance().getCoordinator() == null){
+                System.out.println("setNewCoordinator method when null");
+                ServerState.getInstance().setCoordinator(newCoordinator);
+
+            } else{
+                if (!ServerState.getInstance().getCoordinator().equals(newCoordinator)){
+                    System.out.println("setNewCoordinator method");
+                    ServerState.getInstance().setCoordinator(newCoordinator);
+                }
+            }
+
+        }
+
+
+
     }
 
 }

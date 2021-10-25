@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
-import org.example.services.coordination.deserializers.CoordinationRequestDeserializer;
+import org.example.services.coordination.serializers.CoordinationRequestSerializer;
 
 import java.nio.charset.StandardCharsets;
 
@@ -19,7 +19,7 @@ public class CoordinationRequestEncoder extends MessageToByteEncoder<AbstractCoo
         super();
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationRequestDeserializer());
+        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationRequestSerializer());
         gson = gsonBuilder.create();
     }
     @Override

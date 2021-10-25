@@ -13,46 +13,134 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LeaderState {
     private static LeaderState instance;
-    private static Map<String, GlobalClient> globalClientList;
-    private static Map<String, GlobalRoom> globalRoomList;
+    private Map<String, GlobalClient> globalClientList;
+    private Map<String, GlobalRoom> globalRoomList;
 
     public static synchronized LeaderState getInstance() {
-        if (instance == null && ServerState.getInstance().getCoordinator().equals(ServerState.getInstance().getServerInfo())) {
+        if (instance == null && ServerState.getInstance().getServerInfo().equals(ServerState.getInstance().getCoordinator())) {
             instance = new LeaderState();
-            globalClientList = convertGlobalClientList(ChatClientServer.channelIdClient);
-            globalRoomList = convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
+
         }
         return instance;
     }
 
-    public static Map<String, GlobalClient> getGlobalClientList() {
+    public static synchronized void destroyLeaderInstance() {
+        System.out.println("Destroy previous leader instance");
+        instance = null;
+    }
+
+    public Map<String, GlobalClient> getGlobalClientList() {
         return globalClientList;
     }
 
-    public static Map<String, GlobalRoom> getGlobalRoomList() {
+    public Map<String, GlobalRoom> getGlobalRoomList() {
         return globalRoomList;
     }
 
-    public static Map<String, GlobalClient> convertGlobalClientList(Map<ChannelId, IClient> localClientList) {
-        Map<String, GlobalClient> globalClientList = new ConcurrentHashMap<>();
+    public Map<String, GlobalClient> convertGlobalClientList(Map<ChannelId, IClient> localClientList) {
+        Map<String, GlobalClient> globalCliens = new ConcurrentHashMap<>();
         for (Map.Entry<ChannelId, IClient> entry : localClientList.entrySet()) {
             Client client = (Client) entry.getValue();
             GlobalClient gClient = new GlobalClient(client.getIdentity(), ServerState.getInstance().getServerInfo().getServerId());
-            globalClientList.put(gClient.getIdentity(), gClient);
+            globalCliens.put(gClient.getIdentity(), gClient);
 
         }
 
-        return globalClientList;
+        return globalCliens;
     }
 
-    public static Map<String, GlobalRoom> convertGlobalRoomList(Map<String, Room> localRoomList) {
-        Map<String, GlobalRoom> globalRoomList = new ConcurrentHashMap<>();
+    public Map<String, GlobalRoom> convertGlobalRoomList(Map<String, Room> localRoomList) {
+        Map<String, GlobalRoom> globalRooms = new ConcurrentHashMap<>();
         for (Map.Entry<String, Room> entry : localRoomList.entrySet()) {
             GlobalRoom gRoom = new GlobalRoom(entry.getValue().getRoomId(), ServerState.getInstance().getServerInfo().getServerId());
-            globalRoomList.put(gRoom.getRoomId(), gRoom);
+            globalRooms.put(gRoom.getRoomId(), gRoom);
 
         }
 
-        return globalRoomList;
+        return globalRooms;
     }
+
+    public void assignOwnLists() {
+        System.out.println("assign own lists");
+        globalClientList = convertGlobalClientList(ChatClientServer.channelIdClient);
+        globalRoomList = convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
+        printLists();
+    }
+
+    private synchronized void addServersLocalListToGlobalClientLists(Map<String, GlobalClient> globalClients) {
+        for (Map.Entry<String, GlobalClient> e : globalClients.entrySet()) {
+            if (!globalClientList.containsKey(e.getKey())) {
+                globalClientList.put(e.getKey(), e.getValue());
+            }
+        }
+        System.out.println("global client list updated");
+    }
+
+    private synchronized void addServersLocalListToGlobalRoomLists(Map<String, GlobalRoom> globalRooms) {
+        for (Map.Entry<String, GlobalRoom> e : globalRooms.entrySet()) {
+            if (!globalRoomList.containsKey(e.getKey())) {
+                globalRoomList.put(e.getKey(), e.getValue());
+            }
+        }
+        System.out.println("global room list updated");
+    }
+
+    public void addListsOfAServer(Map<String, GlobalClient> globalClients, Map<String, GlobalRoom> globalRooms) {
+        addServersLocalListToGlobalClientLists(globalClients);
+        addServersLocalListToGlobalRoomLists(globalRooms);
+        printLists();
+    }
+
+    public synchronized GlobalClient checkAndAddClient(GlobalClient client) {
+        if (globalClientList.containsKey(client.getIdentity())) {
+            client.setAccepted(false);
+            System.out.println("user " + client.getIdentity() + " already exist");
+        } else {
+            client.setAccepted(true);
+            globalClientList.put(client.getIdentity(), client);
+            System.out.println(client.getIdentity() + " user added successfully");
+        }
+
+        return client;
+
+    }
+
+    public synchronized GlobalRoom checkAndAddRoom(GlobalRoom room) {
+        if (globalRoomList.containsKey(room.getRoomId())) {
+            room.setAccepted(false);
+            System.out.println("room " + room.getRoomId() + " already exist");
+        } else {
+            room.setAccepted(true);
+            globalRoomList.put(room.getRoomId(), room);
+            System.out.println(room.getRoomId() + " added successfully");
+        }
+        return room;
+    }
+
+    public synchronized void deleteAClient(GlobalClient client) {
+        globalClientList.remove(client.getIdentity());
+    }
+
+    public synchronized void deleteARoom(GlobalRoom room) {
+        globalRoomList.remove(room.getRoomId());
+    }
+
+    public void removeListsByServerID(String serverId) {
+        removeClientListByServerID(serverId);
+        removeRoomListByServerID(serverId);
+    }
+
+    private synchronized void removeClientListByServerID(String serverId) {
+        globalClientList.values().removeIf(value -> value.getServerId().equals(serverId));
+    }
+
+    private synchronized void removeRoomListByServerID(String serverId) {
+        globalRoomList.values().removeIf(value -> value.getServerId().equals(serverId));
+    }
+
+    private void printLists(){
+        globalClientList.forEach((key, value) -> System.out.println(key + " " + value));
+        globalRoomList.forEach((key, value) -> System.out.println(key + " " + value));
+    }
+
 }

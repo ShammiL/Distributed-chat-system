@@ -9,14 +9,13 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
+import org.example.models.server.LeaderState;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
-import org.example.services.coordination.MessageSender;
 import org.example.services.coordination.decoders.CoordinationRequestDecoder;
 import org.example.services.coordination.election.BullyElection;
 
 import java.io.IOException;
-import java.net.ConnectException;
 
 public class CoordinationServer {
     private static CoordinationServer instance;
@@ -42,6 +41,8 @@ public class CoordinationServer {
         if(ServerState.getInstance().getHigherServerInfo().isEmpty()){
 //                if there are no higher priority servers
             System.out.println("there are no higher priority servers");
+            ServerState.getInstance().setCoordinator(ServerState.getInstance().getServerInfo()); // set self as the coordinator
+            LeaderState.getInstance().assignOwnLists(); // set self ss the leader
             new BullyElection().informAndSetNewCoordinator(
                     ServerState.getInstance().getLowerServerInfo()
             );

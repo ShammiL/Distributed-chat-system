@@ -32,6 +32,7 @@ public class ChatClientServer {
         id = serverInfo.getServerId();
         this.port = serverInfo.getClientPort();
         localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
+        // todo: send to coordinator
     }
 
 

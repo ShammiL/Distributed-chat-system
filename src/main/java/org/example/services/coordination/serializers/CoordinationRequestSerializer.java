@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.election.CoordinatorInformationMessage;
 import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
@@ -35,6 +36,9 @@ public class CoordinationRequestSerializer implements JsonSerializer<AbstractCoo
         }
         if (message instanceof IdentityReserveRequest){
             return jsonSerializationContext.serialize(message, IdentityReserveRequest.class);
+        }
+        if (message instanceof CoordinatorInformationMessage){
+            return jsonSerializationContext.serialize(message, CoordinatorInformationMessage.class);
         }
         // Todo: Handle unknown request
         return jsonSerializationContext.serialize("", String.class);

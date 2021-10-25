@@ -22,7 +22,6 @@ public class CoordinationRequestDeserializer implements JsonDeserializer<Abstrac
         final JsonObject requestJson = jsonElement.getAsJsonObject();
 
         AbstractCoordinationMessage request;
-        System.out.println(requestJson.get("type").getAsString());
         switch (requestJson.get("type").getAsString()) {
             case "electionanswer":
                 request = jsonDeserializationContext.deserialize(jsonElement, ElectionAnswerMessage.class);
