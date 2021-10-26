@@ -66,17 +66,19 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
     }
 
     public boolean approveIdentity(String identity) throws InterruptedException {
-//        MessageSender.reserveIdentity(
-//                ServerState.getInstance().getServerInfoById("s2"),
-//                identity,
-//                "client"
-//        );
-
-//        MessageSender.releaseIdentity(
-//                ServerState.getInstance().getServerInfoById("s2"),
-//                identity,
-//                "client"
-//        );
+        JSONObject response =  MessageSender.reserveIdentity(
+                ServerState.getInstance().getServerInfoById("s2"),
+                identity,
+                "client"
+        );
+        System.out.println("reserveIdentity status : " + response.get("reserved"));
+//
+        JSONObject response2 =  MessageSender.releaseIdentity(
+                ServerState.getInstance().getServerInfoById("s2"),
+                identity,
+                "client"
+        );
+        System.out.println("releaseIdentity status : " + response2.get("released"));
         if (validateIdentityValue(identity)){
             return checkUniqueIdentity(identity);
         }

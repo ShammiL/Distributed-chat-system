@@ -1,5 +1,6 @@
 package org.example.handlers.requestHandlers.coordination;
 
+import org.example.models.messages.coordination.leader.reply.ReplyObjects;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
 import org.example.models.server.ServerInfo;
 import org.json.simple.JSONObject;
@@ -21,6 +22,12 @@ public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHa
                 request.getIdentityType() + " " +
                 request.getServerName()
         );
-        return null;
+//        return null;
+        return ReplyObjects.identityReserveReply(
+                true,
+                request.getIdentity(),
+                request.getIdentityType(),
+                server.getServerId()
+        );
     }
 }

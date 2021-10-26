@@ -10,6 +10,8 @@ import org.example.models.messages.coordination.leader.request.IdentityReserveRe
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.client.CoordinationClient;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -46,21 +48,24 @@ public final class MessageSender {
 
     }
 
-    public static boolean reserveIdentity(ServerInfo server, String identity, String identityType) throws InterruptedException {
+    public static JSONObject reserveIdentity(ServerInfo server, String identity, String identityType) throws InterruptedException {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
-        AtomicBoolean response = client.sendMessageAndGetStatus(new IdentityReserveRequest(
+        JSONObject response = client.sendMessageAndGetStatus(new IdentityReserveRequest(
                 identity,
                 identityType,ServerState.getInstance().getServerInfo().getServerId()));
-        return response.get();
+        return response;
     }
 
-    public static boolean releaseIdentity(ServerInfo server, String identity, String identityType) throws InterruptedException {
+    public static JSONObject releaseIdentity(ServerInfo server, String identity, String identityType) throws InterruptedException {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
-        AtomicBoolean response = client.sendMessageAndGetStatus(new IdentityReleaseRequest(
+        JSONObject response = client.sendMessageAndGetStatus(new IdentityReleaseRequest(
                 identity,
                 identityType,ServerState.getInstance().getServerInfo().getServerId()));
-        return response.get();
+        return response;
     }
 
+    public static JSONObject requestRoomList(ServerInfo server) throws InterruptedException {
+        return null;
+    }
 
 }

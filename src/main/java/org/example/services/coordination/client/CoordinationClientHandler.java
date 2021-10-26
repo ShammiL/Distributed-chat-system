@@ -15,7 +15,8 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
 
     private final AbstractCoordinationMessage message;
     private final AtomicBoolean requestSent = new AtomicBoolean(false);
-    private final AtomicBoolean status;
+//    private final AtomicBoolean status;
+    private final JSONObject responseObj;
     private final boolean isFireAndForget;
 
     private static String[] nonFireAndForgetTypes = {
@@ -24,9 +25,9 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
             "election_start",
     };
 
-    public CoordinationClientHandler(AbstractCoordinationMessage message, AtomicBoolean status){
+    public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj){
         this.message = message;
-        this.status = status;
+        this.responseObj = responseObj;
         isFireAndForget = Arrays.stream(nonFireAndForgetTypes).noneMatch(type -> type.equals(message.getType()));
     }
 
@@ -59,23 +60,30 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleIdentityReserveResponse(IdentityReserveResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
         if (request.getIdentity().equals(response.getIdentity())
-                && request.getIdentityType().equals(response.getIdentityType()) && "success".equals(response.getStatus())) {
+                && request.getIdentityType().equals(response.getIdentityType())
+                && "success".equals(response.getStatus())) {
             // Reserve identity successful
-            this.status.set(true);
+//            this.status.set(true);
+            this.responseObj.clear();
+            this.responseObj.put("reserved" , "true");
+
         }
         //TODO: else?
     }
 
+    @SuppressWarnings("unchecked")
     private void handleIdentityReleaseResponse(IdentityReleaseResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
         if (request.getIdentity().equals(response.getIdentity())
         && request.getIdentityType().equals(response.getIdentityType())
                 && "success".equals(response.getStatus())) {
             // Release identity successful
-            this.status.set(true);
+            this.responseObj.clear();
+            this.responseObj.put("released" , "true");
         }
         //TODO: else?
     }

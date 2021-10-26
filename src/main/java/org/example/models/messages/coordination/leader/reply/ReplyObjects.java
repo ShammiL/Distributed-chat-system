@@ -6,6 +6,14 @@ public final class ReplyObjects {
 
     private ReplyObjects() {}
 
+    public static JSONObject leaderResponse() {
+        JSONObject responseObj = new JSONObject();
+        responseObj.put("reserved", "false");
+        responseObj.put("released", "false");
+        responseObj.put("room_list", null);
+        return responseObj;
+    }
+
     public static JSONObject identityReleaseReply(boolean success, String identity, String identityType, String serverId) {
         JSONObject releaseReply = new JSONObject();
         String status = (success) ? "success" : "failure";
