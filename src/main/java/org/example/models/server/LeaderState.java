@@ -6,11 +6,12 @@ import org.example.services.client.ChatClientServer;
 import org.example.services.coordination.ListServices;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LeaderState {
     private static LeaderState instance;
-    private Map<String, GlobalClient> globalClientList;
-    private Map<String, GlobalRoom> globalRoomList;
+    private Map<String, GlobalClient> globalClientList = new ConcurrentHashMap<>();
+    private Map<String, GlobalRoom> globalRoomList = new ConcurrentHashMap<>();
 
     public static synchronized LeaderState getInstance() {
         if (instance == null && ServerState.getInstance().getServerInfo().equals(ServerState.getInstance().getCoordinator())) {
@@ -35,8 +36,10 @@ public class LeaderState {
 
     public void assignOwnLists() {
         System.out.println("assign own lists");
-        globalClientList = ListServices.convertGlobalClientList(ChatClientServer.channelIdClient);
-        globalRoomList = ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
+        addServersLocalListToGlobalClientLists(
+                ListServices.convertGlobalClientList(ChatClientServer.channelIdClient));
+        addServersLocalListToGlobalRoomLists(
+                ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom));
         printLists();
     }
 
