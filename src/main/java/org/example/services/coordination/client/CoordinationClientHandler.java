@@ -30,6 +30,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
             "identity_reserve_request",
             "identity_release_request",
             "election_start",
+            "room_list"
     };
 
     public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj) {
