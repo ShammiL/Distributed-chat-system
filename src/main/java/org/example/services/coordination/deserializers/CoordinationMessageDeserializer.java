@@ -7,12 +7,14 @@ import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
+import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
+import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
 
 import java.lang.reflect.Type;
 
-public class CoordinationRequestDeserializer implements JsonDeserializer<AbstractCoordinationMessage> {
+public class CoordinationMessageDeserializer implements JsonDeserializer<AbstractCoordinationMessage> {
 
     @Override
     public AbstractCoordinationMessage deserialize(JsonElement jsonElement, Type type,
@@ -20,7 +22,6 @@ public class CoordinationRequestDeserializer implements JsonDeserializer<Abstrac
             throws JsonParseException {
 
         final JsonObject requestJson = jsonElement.getAsJsonObject();
-
         AbstractCoordinationMessage request;
         switch (requestJson.get("type").getAsString()) {
             case "electionanswer":
@@ -49,10 +50,25 @@ public class CoordinationRequestDeserializer implements JsonDeserializer<Abstrac
                         requestJson.get("serverName").getAsString()
                 );
                 break;
+            case "identity_reserve_response":
+                request = new IdentityReserveResponse(
+                        requestJson.get("identity").getAsString(),
+                        requestJson.get("identityType").getAsString(),
+                        requestJson.get("status").getAsString(),
+                        requestJson.get("serverName").getAsString()
+                );
+                break;
+            case "identity_release_response":
+                request = new IdentityReleaseResponse(
+                        requestJson.get("identity").getAsString(),
+                        requestJson.get("identityType").getAsString(),
+                        requestJson.get("status").getAsString(),
+                        requestJson.get("serverName").getAsString()
+                );
+                break;
             case "coordinatorinformation":
                 request = jsonDeserializationContext.deserialize(jsonElement, CoordinatorInformationMessage.class);
                 break;
-
             default:
                 throw new JsonParseException("Unexpected coordination message type");
         }

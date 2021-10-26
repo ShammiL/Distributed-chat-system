@@ -9,8 +9,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
-import org.example.services.coordination.encoders.CoordinationRequestEncoder;
+import org.example.services.coordination.decoders.CoordinationMessageDecoder;
+import org.example.services.coordination.encoders.CoordinationMessageEncoder;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,13 +38,15 @@ public class CoordinationClient {
                 public void initChannel(SocketChannel channel) throws Exception {
                     channel.pipeline().addLast(
                             new JsonObjectDecoder(),
-                            new CoordinationRequestEncoder(),
+                            new CoordinationMessageDecoder(),
+                            new CoordinationMessageEncoder(),
+                            new StringEncoder(),
                             new CoordinationClientHandler(message, status));
                 }
             });
 
             // Start the client.
-            ChannelFuture f = bootstrap.connect(host, port).sync(); // (5)
+            ChannelFuture f = bootstrap.connect(host, port).sync();
 
             // Wait until the connection is closed.
             f.channel().closeFuture().sync();

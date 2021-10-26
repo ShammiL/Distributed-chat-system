@@ -13,7 +13,7 @@ import org.example.models.server.LeaderState;
 import org.apache.log4j.Logger;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
-import org.example.services.coordination.decoders.CoordinationRequestDecoder;
+import org.example.services.coordination.decoders.CoordinationMessageDecoder;
 import org.example.services.coordination.election.BullyElection;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class CoordinationServer {
                         protected void initChannel(SocketChannel socketChannel) throws IOException {
                             socketChannel.pipeline().addLast(
                                     new JsonObjectDecoder(),
-                                    new CoordinationRequestDecoder(),
+                                    new CoordinationMessageDecoder(),
                                     new StringEncoder(CharsetUtil.UTF_8),
                                     new CoordinationServerHandler()
                             );

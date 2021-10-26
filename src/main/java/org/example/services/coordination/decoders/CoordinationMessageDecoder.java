@@ -8,19 +8,19 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.CharsetUtil;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
-import org.example.services.coordination.deserializers.CoordinationRequestDeserializer;
+import org.example.services.coordination.deserializers.CoordinationMessageDeserializer;
 
 import java.util.List;
 
-public class CoordinationRequestDecoder extends ByteToMessageDecoder {
+public class CoordinationMessageDecoder extends ByteToMessageDecoder {
 
     private final Gson gson;
 
-    public CoordinationRequestDecoder() {
+    public CoordinationMessageDecoder() {
         super();
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationRequestDeserializer());
+        gsonBuilder.registerTypeAdapter(AbstractCoordinationMessage.class, new CoordinationMessageDeserializer());
         gson = gsonBuilder.create();
     }
 

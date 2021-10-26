@@ -24,7 +24,7 @@ public class CoordinationServerHandler extends ChannelInboundHandlerAdapter {
                 JSONObject response = handler.handleRequest();
                 // TODO: Handle requests without responses cleanly
                 if (response != null) {
-                    ctx.writeAndFlush(response.toJSONString());
+                    ctx.writeAndFlush(response.toJSONString()).sync();
                 }
             }
             //TODO: If server null
