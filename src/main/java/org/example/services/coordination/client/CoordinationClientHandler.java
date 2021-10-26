@@ -1,12 +1,18 @@
 package org.example.services.coordination.client;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
 import org.example.models.messages.coordination.leader.request.AbstractIdentityRequest;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,8 +21,9 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
 
     private final AbstractCoordinationMessage message;
     private final AtomicBoolean requestSent = new AtomicBoolean(false);
-//    private final AtomicBoolean status;
+    //    private final AtomicBoolean status;
     private final JSONObject responseObj;
+    //    private JSONObject responseObj;
     private final boolean isFireAndForget;
 
     private static String[] nonFireAndForgetTypes = {
@@ -25,7 +32,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
             "election_start",
     };
 
-    public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj){
+    public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj) {
         this.message = message;
         this.responseObj = responseObj;
         isFireAndForget = Arrays.stream(nonFireAndForgetTypes).noneMatch(type -> type.equals(message.getType()));
@@ -36,7 +43,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         ctx.writeAndFlush(message);
-        if (isFireAndForget){
+        if (isFireAndForget) {
             ctx.close();
         }
         requestSent.set(true);
@@ -47,12 +54,15 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
         super.channelRead(ctx, msg);
         if (requestSent.get()) {
             AbstractCoordinationMessage response = (AbstractCoordinationMessage) msg;
-            switch (response.getType()){
+            switch (response.getType()) {
                 case "identity_release_response":
                     handleIdentityReleaseResponse((IdentityReleaseResponse) response);
                     break;
                 case "identity_reserve_response":
-                    handleIdentityReserveResponse((IdentityReserveResponse)response);
+                    handleIdentityReserveResponse((IdentityReserveResponse) response);
+                    break;
+                case "room_list_response":
+                    handleRoomListResponse((GlobalRoomResponse) response);
                     break;
                 default:
             }
@@ -63,29 +73,45 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     private void handleIdentityReserveResponse(IdentityReserveResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
+        this.responseObj.clear();
+
         if (request.getIdentity().equals(response.getIdentity())
                 && request.getIdentityType().equals(response.getIdentityType())
                 && "success".equals(response.getStatus())) {
             // Reserve identity successful
 //            this.status.set(true);
-            this.responseObj.clear();
-            this.responseObj.put("reserved" , "true");
+            this.responseObj.put("reserved", "true");
+
+        } else {
+            this.responseObj.put("reserved", "false");
 
         }
-        //TODO: else?
     }
 
     @SuppressWarnings("unchecked")
     private void handleIdentityReleaseResponse(IdentityReleaseResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
+        this.responseObj.clear();
+
         if (request.getIdentity().equals(response.getIdentity())
-        && request.getIdentityType().equals(response.getIdentityType())
+                && request.getIdentityType().equals(response.getIdentityType())
                 && "success".equals(response.getStatus())) {
             // Release identity successful
-            this.responseObj.clear();
-            this.responseObj.put("released" , "true");
+            this.responseObj.put("released", "true");
+        } else {
+            this.responseObj.put("released", "false");
+
         }
-        //TODO: else?
+    }
+
+    private void handleRoomListResponse(GlobalRoomResponse response) {
+        System.out.println("handle room list response ");
+
+        String jsonString = new Gson().toJson(response.getGlobalRoomList());
+        this.responseObj.clear();
+        this.responseObj.put("room_list", jsonString);
+        System.out.println(responseObj);
+
     }
 
     @Override

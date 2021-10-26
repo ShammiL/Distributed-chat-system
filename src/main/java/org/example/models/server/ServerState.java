@@ -88,4 +88,8 @@ public class ServerState {
         }
         return 0;
     }
+
+    public synchronized boolean isCoordinator(){
+        return serverInfo.equals(coordinator);
+    }
 }

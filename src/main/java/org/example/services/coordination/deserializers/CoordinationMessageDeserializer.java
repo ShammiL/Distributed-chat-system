@@ -7,8 +7,10 @@ import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
+import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
+import org.example.models.messages.coordination.leader.request.GlobalRoomListRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
 
@@ -68,6 +70,12 @@ public class CoordinationMessageDeserializer implements JsonDeserializer<Abstrac
                 break;
             case "coordinatorinformation":
                 request = jsonDeserializationContext.deserialize(jsonElement, CoordinatorInformationMessage.class);
+                break;
+            case "room_list":
+                request = jsonDeserializationContext.deserialize(jsonElement, GlobalRoomListRequest.class);
+                break;
+            case "room_list_response":
+                request = jsonDeserializationContext.deserialize(jsonElement, GlobalRoomResponse.class);
                 break;
             default:
                 throw new JsonParseException("Unexpected coordination message type");

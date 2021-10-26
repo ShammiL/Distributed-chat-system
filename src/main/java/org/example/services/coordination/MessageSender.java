@@ -5,6 +5,8 @@ import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
+import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
+import org.example.models.messages.coordination.leader.request.GlobalRoomListRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
 import org.example.models.server.ServerInfo;
@@ -65,7 +67,11 @@ public final class MessageSender {
     }
 
     public static JSONObject requestRoomList(ServerInfo server) throws InterruptedException {
-        return null;
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
+        JSONObject response = client.sendMessageAndGetStatus(new GlobalRoomListRequest(ServerState.getInstance().getServerInfo().getServerId()));
+        System.out.println(response.toString());
+        System.out.println("Request room list");
+        return response;
     }
 
 }

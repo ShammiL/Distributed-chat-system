@@ -23,7 +23,7 @@ public class RequestHandlerFactory {
             return null;
         }
         if (request instanceof ListRequest){
-            return null;
+            return new ListRequestHandler(request, client);
         }
         if (request instanceof WhoRequest) {
             return null;

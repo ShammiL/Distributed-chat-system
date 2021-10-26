@@ -6,6 +6,7 @@ import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
+import org.example.models.messages.coordination.leader.request.GlobalRoomListRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
 import org.example.models.server.ServerInfo;
@@ -33,6 +34,9 @@ public class CoordinationRequestHandlerFactory {
         }
         if (request instanceof CoordinatorInformationMessage) {
             return new CoordinatorInformationMessageHandler(server, (CoordinatorInformationMessage) request);
+        }
+        if (request instanceof GlobalRoomListRequest){
+            return new GlobalRoomListHandler(server, (GlobalRoomListRequest) request);
         }
         return null;
     }

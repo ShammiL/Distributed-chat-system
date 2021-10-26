@@ -2,10 +2,12 @@ package org.example.handlers.requestHandlers.chat;
 
 import io.netty.channel.ChannelId;
 import org.example.models.client.Client;
+import org.example.models.client.GlobalClient;
 import org.example.models.client.IClient;
 import org.example.models.messages.chat.reply.ReplyObjects;
 import org.example.models.messages.chat.AbstractChatRequest;
 import org.example.models.messages.chat.requests.chat.NewIdentityRequest;
+import org.example.models.server.LeaderState;
 import org.example.models.server.ServerState;
 import org.example.services.client.ChatClientServer;
 import org.example.services.coordination.MessageSender;
@@ -18,6 +20,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
     private boolean approved;
     private String identity;
 
+    // todo: add client to global list
 
     public NewIdentityRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
@@ -66,21 +69,32 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
     }
 
     public boolean approveIdentity(String identity) throws InterruptedException {
-        JSONObject response =  MessageSender.reserveIdentity(
-                ServerState.getInstance().getServerInfoById("s2"),
-                identity,
-                "client"
-        );
-        System.out.println("reserveIdentity status : " + response.get("reserved"));
-//
-        JSONObject response2 =  MessageSender.releaseIdentity(
-                ServerState.getInstance().getServerInfoById("s2"),
-                identity,
-                "client"
-        );
-        System.out.println("releaseIdentity status : " + response2.get("released"));
+
         if (validateIdentityValue(identity)){
-            return checkUniqueIdentity(identity);
+            if (ServerState.getInstance().isCoordinator()){
+                return !checkUniqueIdentity(identity); // todo: add client to global list
+            }
+            else{
+                JSONObject response =  MessageSender.reserveIdentity(
+                        ServerState.getInstance().getServerInfoById(
+                                ServerState.getInstance().getCoordinator().getServerId()
+                        ),
+                        identity,
+                        "client"
+                );
+                System.out.println("reserveIdentity status : " + response.get("reserved"));
+//
+                JSONObject response2 =  MessageSender.releaseIdentity(
+                        ServerState.getInstance().getServerInfoById(
+                                ServerState.getInstance().getCoordinator().getServerId()
+                        ),
+                        identity,
+                        "client"
+                );
+                System.out.println("releaseIdentity status : " + response2.get("released"));
+                return  response2.get("released").equals("true");
+            }
+
         }
         else return false;
     }
@@ -92,13 +106,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
     }
 
     public boolean checkUniqueIdentity(String identity){
-        for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
-            Client client = (Client) entry.getValue();
-            if (client.getIdentity().equals(identity)) {
-                return false;
-            }
-        }
-        return true;
+        return LeaderState.getInstance().getGlobalClientList().containsKey(identity);
     }
 
 }
