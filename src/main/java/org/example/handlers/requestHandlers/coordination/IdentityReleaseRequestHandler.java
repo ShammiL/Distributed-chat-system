@@ -1,6 +1,8 @@
 package org.example.handlers.requestHandlers.coordination;
 
+import org.example.models.messages.coordination.leader.reply.ReplyObjects;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
+import org.example.models.server.LeaderState;
 import org.example.models.server.ServerInfo;
 import org.json.simple.JSONObject;
 
@@ -21,6 +23,18 @@ public class IdentityReleaseRequestHandler extends AbstractCoordinationRequestHa
                 request.getIdentityType() + " " +
                 request.getServerName()
         );
-        return null;
+
+        if (request.getIdentityType().equals("room")){
+            LeaderState.getInstance().deleteARoom(request.getIdentity());
+        }
+        else if (request.getIdentityType().equals("client")){
+            LeaderState.getInstance().deleteAClient(request.getIdentity());
+        }
+        return ReplyObjects.identityReleaseReply(
+                true,
+                request.getIdentity(),
+                request.getIdentityType(),
+                server.getServerId()
+        );
     }
 }

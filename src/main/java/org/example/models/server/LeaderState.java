@@ -9,12 +9,14 @@ import org.example.services.coordination.MessageSender;
 import java.net.ConnectException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Math.min;
+
 
 public class LeaderState {
     public static final int HEARTBEAT_INTERVAL = 500;
@@ -26,11 +28,13 @@ public class LeaderState {
 
 
     private static LeaderState instance;
-    private Map<String, GlobalClient> globalClientList;
-    private Map<String, GlobalRoom> globalRoomList;
+
     private final Map<String, String> followerStatus = new ConcurrentHashMap<>();
     private final Map<String, Integer> serverDownRounds = new ConcurrentHashMap<>();
     private static ScheduledExecutorService heartBeatExecutorService;
+
+    private Map<String, GlobalClient> globalClientList = new ConcurrentHashMap<>();
+    private Map<String, GlobalRoom> globalRoomList = new ConcurrentHashMap<>();
 
     public static synchronized LeaderState getInstance() {
         if (instance == null && ServerState.getInstance().getServerInfo().equals(ServerState.getInstance().getCoordinator())) {
@@ -58,8 +62,10 @@ public class LeaderState {
 
     public void assignOwnLists() {
         System.out.println("assign own lists");
-        globalClientList = ListServices.convertGlobalClientList(ChatClientServer.channelIdClient);
-        globalRoomList = ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom);
+        addServersLocalListToGlobalClientLists(
+                ListServices.convertGlobalClientList(ChatClientServer.channelIdClient));
+        addServersLocalListToGlobalRoomLists(
+                ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom));
         printLists();
     }
 
@@ -87,38 +93,39 @@ public class LeaderState {
         printLists();
     }
 
-    public synchronized GlobalClient checkAndAddClient(GlobalClient client) {
+    public synchronized boolean checkAndAddClient(GlobalClient client) {
         if (globalClientList.containsKey(client.getIdentity())) {
             client.setAccepted(false);
             System.out.println("user " + client.getIdentity() + " already exist");
+            return false;
         } else {
             client.setAccepted(true);
             globalClientList.put(client.getIdentity(), client);
             System.out.println(client.getIdentity() + " user added successfully");
+            return true;
         }
-
-        return client;
 
     }
 
-    public synchronized GlobalRoom checkAndAddRoom(GlobalRoom room) {
+    public synchronized boolean checkAndAddRoom(GlobalRoom room) {
         if (globalRoomList.containsKey(room.getRoomId())) {
             room.setAccepted(false);
             System.out.println("room " + room.getRoomId() + " already exist");
+            return false;
         } else {
             room.setAccepted(true);
             globalRoomList.put(room.getRoomId(), room);
             System.out.println(room.getRoomId() + " added successfully");
+            return true;
         }
-        return room;
     }
 
-    public synchronized void deleteAClient(GlobalClient client) {
-        globalClientList.remove(client.getIdentity());
+    public synchronized void deleteAClient(String clientId) {
+        globalClientList.remove(clientId);
     }
 
-    public synchronized void deleteARoom(GlobalRoom room) {
-        globalRoomList.remove(room.getRoomId());
+    public synchronized void deleteARoom(String roomId) {
+        globalRoomList.remove(roomId);
     }
 
     public void removeListsByServerID(String serverId) {
@@ -134,12 +141,11 @@ public class LeaderState {
         globalRoomList.values().removeIf(value -> value.getServerId().equals(serverId));
     }
 
-    private void printLists() {
+    public void printLists(){
+
         globalClientList.forEach((key, value) -> System.out.println(key + " " + value));
         globalRoomList.forEach((key, value) -> System.out.println(key + " " + value));
     }
-
-    private volatile long lastTime = System.currentTimeMillis();
 
     public synchronized void startHearBeatJob() {
         if (heartBeatExecutorService == null) {
@@ -194,4 +200,12 @@ public class LeaderState {
                 System.out.println("Server " + server.getServerId() + " is Possibly Down");
             }
     }
+
+    public String getServerFromRoomId(String roomId) {
+        if(globalRoomList.containsKey(roomId)){
+            return globalRoomList.get(roomId).getServerId();
+        }
+        return null;
+    }
+
 }

@@ -1,0 +1,87 @@
+[DEBUG] 2021-10-27 12:30:50,426 org.apache.commons.beanutils.converters.IntegerConverter convert - Converting 'String' value '5000' to type 'Integer'
+[DEBUG] 2021-10-27 12:30:50,429 org.apache.commons.beanutils.converters.IntegerConverter convertToType -     No NumberFormat, using default conversion
+[DEBUG] 2021-10-27 12:30:50,432 org.apache.commons.beanutils.converters.IntegerConverter convert -     Converted to Integer value '5000'
+[DEBUG] 2021-10-27 12:30:50,432 org.apache.commons.beanutils.converters.IntegerConverter convert - Converting 'String' value '5555' to type 'Integer'
+[DEBUG] 2021-10-27 12:30:50,432 org.apache.commons.beanutils.converters.IntegerConverter convertToType -     No NumberFormat, using default conversion
+[DEBUG] 2021-10-27 12:30:50,432 org.apache.commons.beanutils.converters.IntegerConverter convert -     Converted to Integer value '5555'
+[DEBUG] 2021-10-27 12:30:50,432 org.apache.commons.beanutils.converters.IntegerConverter convert - Converting 'String' value '4445' to type 'Integer'
+[DEBUG] 2021-10-27 12:30:50,433 org.apache.commons.beanutils.converters.IntegerConverter convertToType -     No NumberFormat, using default conversion
+[DEBUG] 2021-10-27 12:30:50,433 org.apache.commons.beanutils.converters.IntegerConverter convert -     Converted to Integer value '4445'
+[DEBUG] 2021-10-27 12:30:50,433 org.apache.commons.beanutils.converters.IntegerConverter convert - Converting 'String' value '5556' to type 'Integer'
+[DEBUG] 2021-10-27 12:30:50,433 org.apache.commons.beanutils.converters.IntegerConverter convertToType -     No NumberFormat, using default conversion
+[DEBUG] 2021-10-27 12:30:50,433 org.apache.commons.beanutils.converters.IntegerConverter convert -     Converted to Integer value '5556'
+[DEBUG] 2021-10-27 12:30:50,434 org.apache.commons.beanutils.converters.IntegerConverter convert - Converting 'String' value '4003' to type 'Integer'
+[DEBUG] 2021-10-27 12:30:50,434 org.apache.commons.beanutils.converters.IntegerConverter convertToType -     No NumberFormat, using default conversion
+[DEBUG] 2021-10-27 12:30:50,435 org.apache.commons.beanutils.converters.IntegerConverter convert -     Converted to Integer value '4003'
+[DEBUG] 2021-10-27 12:30:50,436 org.apache.commons.beanutils.converters.IntegerConverter convert - Converting 'String' value '5003' to type 'Integer'
+[DEBUG] 2021-10-27 12:30:50,438 org.apache.commons.beanutils.converters.IntegerConverter convertToType -     No NumberFormat, using default conversion
+[DEBUG] 2021-10-27 12:30:50,438 org.apache.commons.beanutils.converters.IntegerConverter convert -     Converted to Integer value '5003'
+[INFO] 2021-10-27 12:30:50,438 org.example.services.server.ConfigReaderService readFile - Config file reading success
+[DEBUG] 2021-10-27 12:30:50,463 io.netty.util.internal.logging.InternalLoggerFactory useLog4JLoggerFactory - Using Log4J as the default logging framework
+[DEBUG] 2021-10-27 12:30:50,467 io.netty.channel.MultithreadEventLoopGroup <clinit> - -Dio.netty.eventLoopThreads: 16
+[DEBUG] 2021-10-27 12:30:50,496 io.netty.util.internal.InternalThreadLocalMap <clinit> - -Dio.netty.threadLocalMap.stringBuilder.initialSize: 1024
+[DEBUG] 2021-10-27 12:30:50,496 io.netty.util.internal.InternalThreadLocalMap <clinit> - -Dio.netty.threadLocalMap.stringBuilder.maxSize: 4096
+[DEBUG] 2021-10-27 12:30:50,503 io.netty.channel.nio.NioEventLoop <clinit> - -Dio.netty.noKeySetOptimization: false
+[DEBUG] 2021-10-27 12:30:50,503 io.netty.channel.nio.NioEventLoop <clinit> - -Dio.netty.selectorAutoRebuildThreshold: 512
+[DEBUG] 2021-10-27 12:30:50,529 io.netty.util.internal.PlatformDependent0 explicitNoUnsafeCause0 - -Dio.netty.noUnsafe: false
+[DEBUG] 2021-10-27 12:30:50,529 io.netty.util.internal.PlatformDependent0 javaVersion0 - Java version: 11
+[DEBUG] 2021-10-27 12:30:50,532 io.netty.util.internal.PlatformDependent0 <clinit> - sun.misc.Unsafe.theUnsafe: available
+[DEBUG] 2021-10-27 12:30:50,533 io.netty.util.internal.PlatformDependent0 <clinit> - sun.misc.Unsafe.copyMemory: available
+[DEBUG] 2021-10-27 12:30:50,535 io.netty.util.internal.PlatformDependent0 <clinit> - java.nio.Buffer.address: available
+[DEBUG] 2021-10-27 12:30:50,536 io.netty.util.internal.PlatformDependent0 <clinit> - direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
+[DEBUG] 2021-10-27 12:30:50,537 io.netty.util.internal.PlatformDependent0 <clinit> - java.nio.Bits.unaligned: available, true
+[DEBUG] 2021-10-27 12:30:50,538 io.netty.util.internal.PlatformDependent0 <clinit> - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$6 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @47c08ccb
+[DEBUG] 2021-10-27 12:30:50,540 io.netty.util.internal.PlatformDependent0 <clinit> - java.nio.DirectByteBuffer.<init>(long, int): unavailable
+[DEBUG] 2021-10-27 12:30:50,540 io.netty.util.internal.PlatformDependent unsafeUnavailabilityCause0 - sun.misc.Unsafe: available
+[DEBUG] 2021-10-27 12:30:50,576 io.netty.util.internal.PlatformDependent maxDirectMemory0 - maxDirectMemory: 2116026368 bytes (maybe)
+[DEBUG] 2021-10-27 12:30:50,577 io.netty.util.internal.PlatformDependent tmpdir0 - -Dio.netty.tmpdir: C:\Users\chamodi\AppData\Local\Temp (java.io.tmpdir)
+[DEBUG] 2021-10-27 12:30:50,578 io.netty.util.internal.PlatformDependent bitMode0 - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+[DEBUG] 2021-10-27 12:30:50,582 io.netty.util.internal.PlatformDependent isWindows0 - Platform: Windows
+[DEBUG] 2021-10-27 12:30:50,585 io.netty.util.internal.PlatformDependent <clinit> - -Dio.netty.maxDirectMemory: -1 bytes
+[DEBUG] 2021-10-27 12:30:50,585 io.netty.util.internal.PlatformDependent <clinit> - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+[DEBUG] 2021-10-27 12:30:50,588 io.netty.util.internal.CleanerJava9 <clinit> - java.nio.ByteBuffer.cleaner(): available
+[DEBUG] 2021-10-27 12:30:50,588 io.netty.util.internal.PlatformDependent <clinit> - -Dio.netty.noPreferDirect: false
+[DEBUG] 2021-10-27 12:30:50,602 io.netty.util.internal.PlatformDependent <clinit> - org.jctools-core.MpscChunkedArrayQueue: available
+[DEBUG] 2021-10-27 12:30:50,923 io.netty.channel.DefaultChannelId <clinit> - -Dio.netty.processId: 15708 (auto-detected)
+[DEBUG] 2021-10-27 12:30:50,926 io.netty.util.NetUtil <clinit> - -Djava.net.preferIPv4Stack: false
+[DEBUG] 2021-10-27 12:30:50,926 io.netty.util.NetUtil <clinit> - -Djava.net.preferIPv6Addresses: false
+[DEBUG] 2021-10-27 12:30:51,150 io.netty.util.NetUtilInitializations determineLoopback - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+[DEBUG] 2021-10-27 12:30:51,151 io.netty.util.NetUtil run - Failed to get SOMAXCONN from sysctl and file \proc\sys\net\core\somaxconn. Default: 200
+[DEBUG] 2021-10-27 12:30:51,384 io.netty.channel.DefaultChannelId <clinit> - -Dio.netty.machineId: 30:d1:6b:ff:fe:5c:12:e3 (auto-detected)
+[DEBUG] 2021-10-27 12:30:51,396 io.netty.util.ResourceLeakDetector <clinit> - -Dio.netty.leakDetection.level: simple
+[DEBUG] 2021-10-27 12:30:51,397 io.netty.util.ResourceLeakDetector <clinit> - -Dio.netty.leakDetection.targetRecords: 4
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.numHeapArenas: 16
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.numDirectArenas: 16
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.pageSize: 8192
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.maxOrder: 11
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.chunkSize: 16777216
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.smallCacheSize: 256
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.normalCacheSize: 64
+[DEBUG] 2021-10-27 12:30:51,422 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+[DEBUG] 2021-10-27 12:30:51,423 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.cacheTrimInterval: 8192
+[DEBUG] 2021-10-27 12:30:51,423 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.cacheTrimIntervalMillis: 0
+[DEBUG] 2021-10-27 12:30:51,423 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.useCacheForAllThreads: true
+[DEBUG] 2021-10-27 12:30:51,423 io.netty.buffer.PooledByteBufAllocator <clinit> - -Dio.netty.allocator.maxCachedByteBuffersPerChunk: 1023
+[DEBUG] 2021-10-27 12:30:51,438 io.netty.buffer.ByteBufUtil <clinit> - -Dio.netty.allocator.type: pooled
+[DEBUG] 2021-10-27 12:30:51,439 io.netty.buffer.ByteBufUtil <clinit> - -Dio.netty.threadLocalDirectBufferSize: 0
+[DEBUG] 2021-10-27 12:30:51,439 io.netty.buffer.ByteBufUtil <clinit> - -Dio.netty.maxThreadLocalCharBufferSize: 16384
+[DEBUG] 2021-10-27 12:30:53,582 io.netty.util.Recycler <clinit> - -Dio.netty.recycler.maxCapacityPerThread: 4096
+[DEBU[DEBUG] 2021-10-27 12:30:53,608 io.netty.util.Recycler <clinit> - -Dio.netty.recycler.maxCapacityPerThread: 4096
+[DEBUG] 2021-10-27 12:30:53,608 io.netty.util.Recycler <clinit> - -Dio.netty.recycler.maxSharedCapacityFactor: 2
+[DEBUG] 2021-10-27 12:30:53,608 io.netty.util.Recycler <clinit> - -Dio.netty.recycler.linkCapacity: 16
+[DEBUG] 2021-10-27 12:30:53,609 io.netty.util.Recycler <clinit> - -Dio.netty.recycler.ratio: 8
+[DEBUG] 2021-10-27 12:30:53,609 io.netty.util.Recycler <clinit> - -Dio.netty.recycler.delayedQueue.ratio: 8
+[DEBUG] 2021-10-27 12:30:53,621 io.netty.buffer.AbstractByteBuf <clinit> - -Dio.netty.buffer.checkAccessible: true
+[DEBUG] 2021-10-27 12:30:53,622 io.netty.buffer.AbstractByteBuf <clinit> - -Dio.netty.buffer.checkBounds: true
+[DEBUG] 2021-10-27 12:30:53,623 io.netty.util.ResourceLeakDetectorFactory newResourceLeakDetector - Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@f5c3628
+[D[DEBUG] 2021-10-27 12:30:55,687 io.netty.buffer.PoolThreadCache free - Freed 1 thread-local buffer(s) from thread: nioEventLoopGroup-5-1
+dels.messages.coordination.leader.reply.IdentityReserveResponse@5eaa5aa3 that reached at the tail of the pipeline. Please check your pipeline configuration.
+[DEBUG] 2021-10-27 12:30:54,166 io.netty.channel.DefaultChannelPipeline onUnhandledInboundMessage - Discarded message pipeline : [JsonObjectDecoder#0, CoordinationMessageDecoder#0, CoordinationMessageEncoder#0, StringEncoder#0, CoordinationClientHandler#0, DefaultChannelPipeline$TailContext#0]. Channel : [id: 0x51ab3897, L:/127.0.0.1:55380 - R:localhost/127.0.0.1:5556].
+[DEBUG] 2021-10-27 12:30:55,758 io.netty.buffer.PoolThreadCache free - Freed 1 thread-local buffer(s) from thread: nioEventLoopGroup-8-1
+[DEBUG] 2021-10-27 12:30:56,232 io.netty.buffer.PoolThreadCache free - Freed 2 thread-local buffer(s) from thread: nioEventLoopGroup-9-1
+[DEBUG] 2021-10-27 12:31:02,097 io.netty.channel.DefaultChannelPipeline onUnhandledInboundMessage - Discarded inbound message org.example.models.messages.coordination.leader.reply.RoomInfoResponse@3cd27306 that reached at the tail of the pipeline. Please check your pipeline configuration.
+[DEBUG] 2021-10-27 12:31:02,098 io.netty.channel.DefaultChannelPipeline onUnhandledInboundMessage - Discarded message pipeline : [JsonObjectDecoder#0, CoordinationMessageDecoder#0, CoordinationMessageEncoder#0, StringEncoder#0, CoordinationClientHandler#0, DefaultChannelPipeline$TailContext#0]. Channel : [id: 0x7b37a795, L:/127.0.0.1:55413 - R:localhost/127.0.0.1:5556].
+[DEBUG] 2021-10-27 12:31:04,159 io.netty.buffer.PoolThreadCache free - Freed 2 thread-local buffer(s) from thread: nioEventLoopGroup-10-1
+[DEBUG] 2021-10-27 12:31:34,331 io.netty.channel.DefaultChannelPipeline onUnhandledInboundMessage - Discarded inbound message org.example.models.messages.coordination.leader.reply.IdentityReserveResponse@68c2dbd2 that reached at the tail of the pipeline. Please check your pipeline configuration.
+[DEBUG] 2021-10-27 12:31:34,331 io.netty.channel.DefaultChannelPipeline onUnhandledInboundMessage - Discarded message pipeline : [JsonObjectDecoder#0, CoordinationMessageDecoder#0, CoordinationMessageEncoder#0, StringEncoder#0, CoordinationClientHandler#0, DefaultChannelPipeline$TailContext#0]. Channel : [id: 0xc6ac74df, L:/127.0.0.1:55447 - R:localhost/127.0.0.1:5556].
+[DEBUG] 2021-10-27 12:31:36,404 io.netty.buffer.PoolThreadCache free - Freed 2 thread-local buffer(s) from thread: nioEventLoopGroup-11-1

@@ -9,8 +9,10 @@ import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.leader.reply.ReplyObjects;
 import org.example.services.coordination.decoders.CoordinationMessageDecoder;
 import org.example.services.coordination.encoders.CoordinationMessageEncoder;
+import org.json.simple.JSONObject;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,15 +31,15 @@ public class CoordinationClient {
         this.async = async;
     }
 
-
-    public AtomicBoolean sendMessageAndGetStatus(AbstractCoordinationMessage message) throws InterruptedException {
+    public JSONObject sendMessageAndGetStatus(AbstractCoordinationMessage message) throws InterruptedException {
         return sendMessageAndGetStatus(message, null, null);
     }
 
-    //TODO: Improve the method to not just return a (atomic) boolean
-    public AtomicBoolean sendMessageAndGetStatus(AbstractCoordinationMessage message, Runnable success, Runnable failure) throws InterruptedException {
+    public JSONObject sendMessageAndGetStatus(AbstractCoordinationMessage message, Runnable success, Runnable failure) throws InterruptedException {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        AtomicBoolean status = new AtomicBoolean(false);
+//        AtomicBoolean status = new AtomicBoolean(false);
+        JSONObject responseObj = ReplyObjects.leaderResponse();
+
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workerGroup);
@@ -51,7 +53,8 @@ public class CoordinationClient {
                             new CoordinationMessageDecoder(),
                             new CoordinationMessageEncoder(),
                             new StringEncoder(CharsetUtil.UTF_8),
-                            new CoordinationClientHandler(message, status));
+//                            new CoordinationClientHandler(message, status));
+                            new CoordinationClientHandler(message, responseObj));
                 }
             });
 
@@ -79,8 +82,8 @@ public class CoordinationClient {
                 workerGroup.shutdownGracefully();
             }
         }
-        // Status will always return false for async requests
-        return status;
-}
 
+//        return status;
+        return responseObj;
+    }
 }
