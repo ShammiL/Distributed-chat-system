@@ -88,7 +88,7 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     }
 
     private boolean validateIdentityValue(String identity) {
-        if (identity.length() < 3 || identity.length() > 16) return false;
+        if (identity.length() < 3 || identity.length() > 16 || UtilService.isLikeMainHall(identity)) return false;
         else return UtilService.isAlphaNumeric(identity);
     }
 
