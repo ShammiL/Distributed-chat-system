@@ -77,4 +77,13 @@ public class ReplyObjects {
         msg.put("owner", owner);
         return msg;
     }
+
+    public static JSONObject routeMessage(String roomId, String host, String port) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "route");
+        msg.put("roomid", roomId);
+        msg.put("host", host);
+        msg.put("port", port);
+        return msg;
+    }
 }
