@@ -14,6 +14,7 @@ import org.example.models.room.Room;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.client.decoders.ChatRequestObjectDecoder;
+//import org.example.services.client.validators.ChatRequestValidator;
 
 import java.io.IOException;
 import java.util.Map;
@@ -74,6 +75,7 @@ public class ChatClientServer {
                                     new JsonObjectDecoder(),
                                     new ChatRequestObjectDecoder(),
                                     new StringEncoder(CharsetUtil.UTF_8),
+//                                    new ChatRequestValidator(),
                                     new ChatServerHandler()
                             );
                         }

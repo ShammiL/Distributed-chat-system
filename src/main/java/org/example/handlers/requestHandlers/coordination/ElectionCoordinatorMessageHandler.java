@@ -1,6 +1,7 @@
 package org.example.handlers.requestHandlers.coordination;
 
 import org.example.models.server.ServerInfo;
+import org.example.models.server.ServerState;
 import org.example.services.coordination.election.BullyElection;
 import org.json.simple.JSONObject;
 
@@ -17,9 +18,15 @@ public class ElectionCoordinatorMessageHandler extends AbstractCoordinationReque
     public JSONObject handleRequest() {
         System.out.println("Received Election Coordinator Message from: " + server.getServerId());
 //      set msg sender as new coordinator
-        new BullyElection().setNewCoordinator(server);
-        new BullyElection().sendCoordinatorInformationMessage(server);
-        System.out.println("mesg sent");
+
+        if (ServerState.getInstance().getHigherServerInfo().contains(server)){
+            BullyElection.getInstance().endCoordinatorMessageTimeout();
+            BullyElection.getInstance().endElectionAnswerMsgTimeout();
+            BullyElection.getInstance().endElectionStart();
+            BullyElection.getInstance().setNewCoordinator(server);
+            BullyElection.getInstance().sendCoordinatorInformationMessage(server);
+            System.out.println("mesg sent");
+        }
         return null;
     }
 }
