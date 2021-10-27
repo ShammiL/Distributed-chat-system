@@ -77,6 +77,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
         }
     }
 
+
     public boolean approveIdentity(String identity) throws InterruptedException, ConnectException {
 
         if (validateIdentityValue(identity)) {

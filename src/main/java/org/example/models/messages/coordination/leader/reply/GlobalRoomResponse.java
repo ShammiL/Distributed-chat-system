@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GlobalRoomResponse extends AbstractCoordinationMessage {
+
     @SerializedName("globalRoomList")
     private Map<String, GlobalRoom> globalRoomList = new ConcurrentHashMap<>();
 

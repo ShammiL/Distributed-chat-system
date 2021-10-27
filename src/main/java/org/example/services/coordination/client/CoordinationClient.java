@@ -26,7 +26,6 @@ public class CoordinationClient {
         this.host = host;
         this.port = port;
     }
-    //TODO: Improve the method to not just return a (atomic) boolean
     public JSONObject sendMessageAndGetStatus(AbstractCoordinationMessage message) throws InterruptedException {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 //        AtomicBoolean status = new AtomicBoolean(false);

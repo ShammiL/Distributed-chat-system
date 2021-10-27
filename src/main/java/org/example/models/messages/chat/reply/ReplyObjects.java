@@ -78,10 +78,26 @@ public class ReplyObjects {
         return msg;
     }
 
+
     public static JSONObject roomList(List<String> rooms) {
         JSONObject msg = new JSONObject();
         msg.put("type", "roomlist");
         msg.put("rooms", rooms);
+
+    public static JSONObject routeMessage(String roomId, String host, String port) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "route");
+        msg.put("roomid", roomId);
+        msg.put("host", host);
+        msg.put("port", port);
+        return msg;
+    }
+
+    public static JSONObject moveJoinServerMessage(boolean approved){
+        JSONObject msg = new JSONObject();
+        msg.put("type", "serverchange");
+        msg.put("approved", Boolean.toString(approved));
+        msg.put("serverid", ChatClientServer.getInstance().getId());
         return msg;
     }
 }

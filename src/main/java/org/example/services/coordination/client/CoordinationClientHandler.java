@@ -9,8 +9,11 @@ import org.example.models.messages.coordination.AbstractCoordinationMessage;
 import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
+import org.example.models.messages.coordination.leader.reply.RoomInfoResponse;
 import org.example.models.messages.coordination.leader.request.AbstractIdentityRequest;
 import org.example.models.server.LeaderState;
+import org.example.models.server.ServerInfo;
+import org.example.models.server.ServerState;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -32,6 +35,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
             "identity_release_request",
             "election_start",
             "room_list",
+            "room_info_request"
     };
 
     public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj) {
@@ -67,6 +71,9 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
                     break;
                 case "room_list_response":
                     handleRoomListResponse((GlobalRoomResponse) msg);
+                    break;
+                case "room_info_response":
+                    handleRoomInfoResponse((RoomInfoResponse) msg);
                     break;
                 default:
             }
@@ -112,13 +119,31 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
 
     @SuppressWarnings("unchecked")
     private void handleRoomListResponse(GlobalRoomResponse response) {
-        System.out.println("handle room list response ");
+        System.out.println("handle room list response");
         System.out.println(response.getGlobalRoomList());
         String jsonString = new Gson().toJson(response);
         this.responseObj.clear();
         this.responseObj.put("room_list", jsonString);
         System.out.println(responseObj);
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleRoomInfoResponse(RoomInfoResponse msg){
+        System.out.println("handleRoomInfoResponse");
+
+        this.responseObj.clear();
+        String roomOwnedServerName = msg.getRoomOwnedServerName();
+        System.out.println("RoomOwnedServerName : " + roomOwnedServerName);
+        if(roomOwnedServerName != null) {
+            ServerInfo roomOwnedServer = ServerState.getInstance().getServersList().get(roomOwnedServerName);
+            int clientPort = roomOwnedServer.getClientPort();
+            String serverAddress = roomOwnedServer.getServerAddress();
+            System.out.println(clientPort + " " + serverAddress);
+
+            this.responseObj.put("host", serverAddress);
+            this.responseObj.put("port", clientPort);
+        }
     }
 
     @Override
