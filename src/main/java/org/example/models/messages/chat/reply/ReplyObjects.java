@@ -83,6 +83,8 @@ public class ReplyObjects {
         JSONObject msg = new JSONObject();
         msg.put("type", "roomlist");
         msg.put("rooms", rooms);
+        return msg;
+    }
 
     public static JSONObject routeMessage(String roomId, String host, String port) {
         JSONObject msg = new JSONObject();
