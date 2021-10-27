@@ -77,4 +77,11 @@ public class ReplyObjects {
         msg.put("owner", owner);
         return msg;
     }
+
+    public static JSONObject roomList(List<String> rooms) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "roomlist");
+        msg.put("rooms", rooms);
+        return msg;
+    }
 }
