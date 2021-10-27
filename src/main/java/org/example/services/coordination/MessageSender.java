@@ -5,7 +5,6 @@ import org.example.models.messages.coordination.election.ElectionAnswerMessage;
 import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
 import org.example.models.messages.coordination.election.ElectionStartMessage;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
-import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.request.GlobalRoomListRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
@@ -13,15 +12,14 @@ import org.example.models.messages.coordination.leader.request.RoomInfoRequest;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.client.CoordinationClient;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.net.ConnectException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MessageSender {
 
-    private MessageSender(){}
+    private MessageSender() {
+    }
 
     public static void sendElectionAnswerMessage(ServerInfo server) throws InterruptedException {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
@@ -54,7 +52,7 @@ public final class MessageSender {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
         JSONObject response = client.sendMessageAndGetStatus(new IdentityReserveRequest(
                 identity,
-                identityType,ServerState.getInstance().getServerInfo().getServerId()));
+                identityType, ServerState.getInstance().getServerInfo().getServerId()));
         return response;
     }
 
@@ -62,7 +60,7 @@ public final class MessageSender {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
         JSONObject response = client.sendMessageAndGetStatus(new IdentityReleaseRequest(
                 identity,
-                identityType,ServerState.getInstance().getServerInfo().getServerId()));
+                identityType, ServerState.getInstance().getServerInfo().getServerId()));
         return response;
     }
 

@@ -34,9 +34,6 @@ public class Main {
             CoordinationServer.getInstance().SelectCoordinator();
             ChatClientServer.getInstance().run();
 
-//            ServerInfo s1 = ServerState.getInstance().getServerInfoById("s1");
-//            MessageSender.releaseIdentity(s1, "test", "room");
-
         } catch (CmdLineException e) {
             e.getLocalizedMessage();
         }

@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ListServices {
-    private ListServices(){}
+    private ListServices() {
+    }
 
     public static Map<String, GlobalClient> convertGlobalClientList(Map<ChannelId, IClient> localClientList) {
         Map<String, GlobalClient> globalClients = new ConcurrentHashMap<>();
