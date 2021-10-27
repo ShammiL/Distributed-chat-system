@@ -1,18 +1,24 @@
 package org.example.models.server;
 
+import org.example.models.messages.chat.AbstractChatRequest;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 public class ServerState {
+    private static final int MAX_RETRY_QUEUE_SIZE = 500;
+    private static final int MAX_RETRIES = 3;
     private static ServerState instance;
     private ServerInfo serverInfo;
     private ServerInfo coordinator;
     private final ConcurrentMap<String, ServerInfo> serversList = new ConcurrentHashMap<>(); // (serverId, serverinfp)
     private final ConcurrentMap<String, ServerInfo> higherServerInfo = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, ServerInfo> lowerServerInfo = new ConcurrentHashMap<>();
-
+    private final Queue<AbstractChatRequest> retryQueue = new ConcurrentLinkedQueue<>();
     private ServerState() {
     }
 
@@ -23,6 +29,28 @@ public class ServerState {
         return instance;
     }
 
+    public Queue<AbstractChatRequest> getRetryQueue() {
+        return retryQueue;
+    }
+
+    public boolean addRetryRequest(AbstractChatRequest request) {
+
+        if (request.getTries() <= MAX_RETRIES) {
+            if (retryQueue.size() >= MAX_RETRY_QUEUE_SIZE) {
+                AbstractChatRequest requestToBeRemoved = retryQueue.peek();
+                for (AbstractChatRequest retryRequest : retryQueue) {
+                    if (retryRequest.getTries() > requestToBeRemoved.getTries()) {
+                        requestToBeRemoved = retryRequest;
+                    }
+                }
+                retryQueue.remove(requestToBeRemoved);
+            }
+            retryQueue.add(request);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public synchronized void initServerState(String serverId) {
         serverInfo = serversList.get(serverId);

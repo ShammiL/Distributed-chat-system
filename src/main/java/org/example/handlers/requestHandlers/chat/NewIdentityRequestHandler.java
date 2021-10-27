@@ -22,6 +22,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
     private boolean approved;
     private String identity;
     private final Logger logger = Logger.getLogger(NewIdentityRequestHandler.class);
+    private boolean retried = false;
 
     public NewIdentityRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
@@ -46,6 +47,8 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
         } catch (InterruptedException | ConnectException e) {
             logger.error("error when sending new identity to leader " + e.getMessage());
             // todo: start election and check again
+            request.incrementTries();
+            retried = ServerState.getInstance().addRetryRequest(request);
         }
 
         String approvalString;
@@ -59,7 +62,9 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
     public void handleRequest() {
         synchronized (this) {
             JSONObject reply = processRequest();
-            sendResponse(reply);
+            if (!retried) {
+                sendResponse(reply);
+            }
             if (approved) {
                 getClient().setIdentity(request.getIdentity());
                 getClient().setRoom(ChatClientServer.getMainHal());
@@ -84,6 +89,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
             if (ServerState.getInstance().isCoordinator()) {
                 return !checkUniqueIdentity(identity);
             } else {
+
                 JSONObject response = MessageSender.reserveIdentity(
                         ServerState.getInstance().getServerInfoById(
                                 ServerState.getInstance().getCoordinator().getServerId()
