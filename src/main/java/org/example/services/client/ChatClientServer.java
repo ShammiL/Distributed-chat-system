@@ -43,10 +43,10 @@ public class ChatClientServer {
         localRoomIdLocalRoom.put("MainHall-" + id, new Room("MainHall-" + id));
 
         // if leader add to global list
-        if(ServerState.getInstance().isCoordinator()){
+        if (ServerState.getInstance().isCoordinator()) {
             GlobalRoom gRoom = new GlobalRoom("MainHall-" + id, ServerState.getInstance().getServerInfo().getServerId());
             LeaderState.getInstance().checkAndAddRoom(gRoom);
-        } else{
+        } else {
             JSONObject response = null;
             try {
                 response = MessageSender.reserveIdentity(
@@ -55,16 +55,15 @@ public class ChatClientServer {
                         "room"
                 );
             } catch (Exception e) {
-                if(e instanceof ConnectException) {
-                    System.out.println("connect exception");
-                }
-                else {
-                    System.out.println(e.getMessage());
+                if (e instanceof ConnectException) {
+                    logger.error("connect exception");
+                } else {
+                    logger.error(e.getMessage());
                 }
             }
 
         }
-        System.out.println("mainHall added");
+        logger.info("mainHall added");
 
         logger.info("ChatClientServer instance created");
 
@@ -103,7 +102,6 @@ public class ChatClientServer {
                                     new JsonObjectDecoder(),
                                     new ChatRequestObjectDecoder(),
                                     new StringEncoder(CharsetUtil.UTF_8),
-//                                    new ChatRequestValidator(),
                                     new ChatServerHandler()
                             );
                         }

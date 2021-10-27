@@ -10,7 +10,6 @@ public class UtilService {
     }
 
     public static boolean isLikeMainHall(String s) {
-        System.out.println(s.matches("^MainHall"));
         return s.matches("^MainHall");
     }
 

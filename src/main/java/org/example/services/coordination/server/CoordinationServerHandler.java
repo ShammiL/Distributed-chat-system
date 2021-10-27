@@ -16,18 +16,15 @@ public class CoordinationServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         AbstractCoordinationMessage message = (AbstractCoordinationMessage) msg;
         try {
-            //TODO: Authenticate requesting server identity
             ServerInfo server = ServerState.getInstance().getServerInfoById(message.getServerName());
             if (server != null) {
                 AbstractCoordinationRequestHandler handler = CoordinationRequestHandlerFactory
                         .requestHandler(message, server);
                 JSONObject response = handler.handleRequest();
-                // TODO: Handle requests without responses cleanly
                 if (response != null) {
                     ctx.writeAndFlush(response.toJSONString()).sync();
                 }
             }
-            //TODO: If server null
             ctx.close();
         } finally {
             ReferenceCountUtil.release(msg);

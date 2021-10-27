@@ -34,10 +34,9 @@ public class ListRequestHandler extends AbstractRequestHandler {
 
     @Override
     public void handleRequest() {
-        System.out.println("Client list request handler");
+        logger.info("room list request from :" + getClient().getIdentity());
         try {
             if (ServerState.getInstance().isCoordinator()) {
-                System.out.println("if coordiantor send list to client");
                 JSONObject response = ReplyObjects.roomList(getRooms());
                 sendResponse(response);
             } else {

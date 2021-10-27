@@ -1,5 +1,6 @@
 package org.example.handlers.requestHandlers.chat;
 
+import org.apache.log4j.Logger;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
 import org.example.models.messages.chat.AbstractChatRequest;
@@ -9,8 +10,10 @@ import org.example.models.room.Room;
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
 
-public class MoveJoinRequestHandler  extends AbstractRequestHandler{
+public class MoveJoinRequestHandler extends AbstractRequestHandler {
     private final MoveJoinRequest request;
+    private final Logger logger = Logger.getLogger(MoveJoinRequestHandler.class);
+
     public MoveJoinRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
         this.request = (MoveJoinRequest) request;
@@ -18,22 +21,16 @@ public class MoveJoinRequestHandler  extends AbstractRequestHandler{
 
     @Override
     public JSONObject processRequest() {
-        System.out.println(request.getIdentity() + " "
-        + request.getRoomId() + ""
-                + request.getFormer() + ""
-        );
-        System.out.println(ReplyObjects.moveJoinServerMessage(true));
         return ReplyObjects.moveJoinServerMessage(true);
     }
 
     @Override
     public void handleRequest() {
-        System.out.println("Move join request handler");
+        logger.info("Move join request from: " + getClient().getIdentity());
         Room room = null;
-        if (ChatClientServer.localRoomIdLocalRoom.containsKey(request.getRoomId())){
+        if (ChatClientServer.localRoomIdLocalRoom.containsKey(request.getRoomId())) {
             room = ChatClientServer.localRoomIdLocalRoom.get(request.getRoomId());
-        }
-        else {
+        } else {
             room = ChatClientServer.getMainHal();
         }
         getClient().setRoom(room);

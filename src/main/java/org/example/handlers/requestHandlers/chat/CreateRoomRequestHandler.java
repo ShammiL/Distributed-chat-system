@@ -43,7 +43,7 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     @Override
     public JSONObject processRequest() {
         roomId = request.getRoomId();
-        System.out.println("roomId : " + roomId);
+        logger.info("create room request for roomId : " + roomId);
         approved = approveIdentity(roomId);
         return ReplyObjects.createNewRoom(roomId, approved);
     }
@@ -108,7 +108,6 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
                         identity,
                         "room"
                 );
-                System.out.println("reserveIdentity status : " + response.get("reserved"));
                 return response.get("reserved").equals("true");
             }
 

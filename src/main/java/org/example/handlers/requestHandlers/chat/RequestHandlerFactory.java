@@ -6,29 +6,29 @@ import org.example.models.messages.chat.requests.chat.*;
 
 public class RequestHandlerFactory {
 
-    public static AbstractRequestHandler requestHandler(AbstractChatRequest request, IClient client){
+    public static AbstractRequestHandler requestHandler(AbstractChatRequest request, IClient client) {
         if (request instanceof NewIdentityRequest) {
             return new NewIdentityRequestHandler(request, client);
         }
-        if (request instanceof CreateRoomRequest){
-            return new CreateRoomRequestHandler(request,client);
+        if (request instanceof CreateRoomRequest) {
+            return new CreateRoomRequestHandler(request, client);
         }
-        if (request instanceof DeleteRoomRequest){
+        if (request instanceof DeleteRoomRequest) {
             return new DeleteRoomRequestHandler(request, client);
         }
-        if (request instanceof JoinRoomRequest){
+        if (request instanceof JoinRoomRequest) {
             return new JoinRoomRequestHandler(request, client);
         }
-        if (request instanceof MoveJoinRequest){
+        if (request instanceof MoveJoinRequest) {
             return new MoveJoinRequestHandler(request, client);
         }
-        if (request instanceof ListRequest){
+        if (request instanceof ListRequest) {
             return new ListRequestHandler(request, client);
         }
         if (request instanceof WhoRequest) {
             return new WhoRequestHandler(client);
         }
-        if (request instanceof MessageRequest){
+        if (request instanceof MessageRequest) {
             return new MessageRequestHandler(request, client);
         }
         if (request instanceof QuitRequest) {

@@ -7,7 +7,7 @@ public class AbstractIdentityResponse extends AbstractIdentityMessage {
 
     protected String status;
 
-    public AbstractIdentityResponse(String type, String identity, String identityType, String status,  String serverName) {
+    public AbstractIdentityResponse(String type, String identity, String identityType, String status, String serverName) {
         super(type, identity, identityType, serverName);
         this.status = status;
     }

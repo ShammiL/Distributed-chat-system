@@ -37,6 +37,7 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
     @Override
     public void handleRequest() {
         synchronized (this) {
+            logger.info("Delete room request for room " + request.getRoomId());
             JSONObject reply = processRequest();
 
             if (!retried) {
@@ -72,10 +73,9 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
 
 
     private void deleteFromGlobalList() throws InterruptedException, ConnectException {
-        if (ServerState.getInstance().isCoordinator()){
+        if (ServerState.getInstance().isCoordinator()) {
             LeaderState.getInstance().deleteARoom(request.getRoomId());
-        }
-        else {
+        } else {
             //  send server request
             JSONObject response = null;
 

@@ -7,7 +7,7 @@ public class CmdValues {
     private String serverId = "1";
 
     @Option(required = true, name = "-l", usage = "l=Server Configuration File")
-    private String serverConfig = "./config/server.tab";
+    private String serverConfig = "./server_config.tab";
 
     public String getServerId() {
         return serverId;

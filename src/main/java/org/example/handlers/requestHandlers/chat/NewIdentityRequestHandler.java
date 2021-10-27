@@ -1,6 +1,5 @@
 package org.example.handlers.requestHandlers.chat;
 
-import io.netty.channel.ChannelId;
 import org.apache.log4j.Logger;
 import org.example.models.client.Client;
 import org.example.models.client.GlobalClient;
@@ -15,7 +14,7 @@ import org.example.services.coordination.MessageSender;
 import org.json.simple.JSONObject;
 
 import java.net.ConnectException;
-import java.util.Map;
+
 
 public class NewIdentityRequestHandler extends AbstractRequestHandler {
     private final NewIdentityRequest request;
@@ -40,6 +39,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
 
     @Override
     public JSONObject processRequest() {
+        logger.info("New identity request from: " + request.getIdentity());
         identity = request.getIdentity();
         System.out.println("identity : " + identity);
         try {
@@ -54,7 +54,6 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
         String approvalString;
         if (approved) approvalString = "true";
         else approvalString = "false";
-        System.out.println(approvalString);
         return ReplyObjects.newIdentityReply(approvalString);
     }
 
