@@ -86,4 +86,12 @@ public class ReplyObjects {
         msg.put("port", port);
         return msg;
     }
+
+    public static JSONObject moveJoinServerMessage(boolean approved){
+        JSONObject msg = new JSONObject();
+        msg.put("type", "serverchange");
+        msg.put("approved", Boolean.toString(approved));
+        msg.put("serverid", ChatClientServer.getInstance().getId());
+        return msg;
+    }
 }

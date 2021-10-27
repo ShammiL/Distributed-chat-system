@@ -110,6 +110,7 @@ public class JoinRoomRequestHandler extends AbstractRequestHandler{
         synchronized (this) {
             JSONObject reply = processRequest();
             sendResponse(reply);
+            System.out.println("Handle request method in join room" + reply.toString());
             if (isLocalRoomExist( request.getRoomId()) && isNotCurrentOwner()) {
                 Room newRoom = ChatClientServer.localRoomIdLocalRoom.get( request.getRoomId());
                 Room formerRoom = getClient().getRoom();

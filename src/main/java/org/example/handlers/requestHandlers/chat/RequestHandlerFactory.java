@@ -20,7 +20,7 @@ public class RequestHandlerFactory {
             return new JoinRoomRequestHandler(request, client);
         }
         if (request instanceof MoveJoinRequest){
-            return null;
+            return new MoveJoinRequestHandler(request, client);
         }
         if (request instanceof ListRequest){
             return new ListRequestHandler(request, client);
