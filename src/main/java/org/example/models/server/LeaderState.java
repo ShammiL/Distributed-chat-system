@@ -115,7 +115,7 @@ public class LeaderState {
         globalRoomList.values().removeIf(value -> value.getServerId().equals(serverId));
     }
 
-    private void printLists(){
+    public void printLists(){
         globalClientList.forEach((key, value) -> System.out.println(key + " " + value));
         globalRoomList.forEach((key, value) -> System.out.println(key + " " + value));
     }
