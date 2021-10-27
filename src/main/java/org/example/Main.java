@@ -10,6 +10,7 @@ import org.kohsuke.args4j.CmdLineParser;
 
 public class Main {
     private static final Logger logger = Logger.getLogger(Main.class);
+
     public static void main(String[] args) throws Exception {
 
         String serverId;
@@ -28,7 +29,7 @@ public class Main {
                 try {
                     CoordinationServer.getInstance().run();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             });
 
@@ -37,7 +38,7 @@ public class Main {
             ChatClientServer.getInstance().run();
 
         } catch (CmdLineException e) {
-            e.getLocalizedMessage();
+            logger.error(e.getMessage());
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.example.services.coordination.election;
 
+import org.apache.log4j.Logger;
 import org.example.handlers.requestHandlers.chat.RequestHandlerFactory;
 import org.example.models.messages.chat.AbstractChatRequest;
 import org.example.models.server.LeaderState;
@@ -35,6 +36,8 @@ public class BullyElection {
     private ScheduledExecutorService electionTimeoutExecutor;
     private ScheduledFuture<?> electionTimeoutFuture;
 
+    private final Logger logger = Logger.getLogger(BullyElection.class);
+
     private static BullyElection instance;
 
     public static BullyElection getInstance() {
@@ -54,82 +57,82 @@ public class BullyElection {
 
     public synchronized void restartElectionTimeout() {
 
-            endElectionTimeout();
-            startElectionTimeout();
+        endElectionTimeout();
+        startElectionTimeout();
     }
 
     public synchronized void startElectionTimeout() {
 
-            if (electionTimeoutExecutor == null) {
-                electionTimeoutExecutor = Executors.newSingleThreadScheduledExecutor();
+        if (electionTimeoutExecutor == null) {
+            electionTimeoutExecutor = Executors.newSingleThreadScheduledExecutor();
+        }
+        lastHeartBeatTime.set(System.currentTimeMillis());
+        electionTimeoutFuture = electionTimeoutExecutor.schedule(() -> {
+            if (System.currentTimeMillis() - lastHeartBeatTime.get() > HEARTBEAT_THRESHOLD) {
+                logger.info("Starting election because leader didn't send heartbeat");
+                BullyElection.getInstance().startElection(
+                        ServerState.getInstance().getHigherServerInfo()
+                );
             }
-            lastHeartBeatTime.set(System.currentTimeMillis());
-            electionTimeoutFuture = electionTimeoutExecutor.schedule(() -> {
-                if (System.currentTimeMillis() - lastHeartBeatTime.get() > HEARTBEAT_THRESHOLD) {
-                    System.out.println("Starting election because leader didn't send heartbeat");
-                    BullyElection.getInstance().startElection(
-                            ServerState.getInstance().getHigherServerInfo()
-                    );
-                }
-            }, ELECTION_START_TIMEOUT, TimeUnit.MILLISECONDS);
+        }, ELECTION_START_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public  synchronized void endElectionTimeout() {
+    public synchronized void endElectionTimeout() {
 
-            if (electionTimeoutFuture != null) {
-                electionTimeoutFuture.cancel(true);
-            }
-            if (electionTimeoutExecutor != null) {
-                electionTimeoutExecutor.shutdownNow();
-                electionTimeoutExecutor = null;
-            }
+        if (electionTimeoutFuture != null) {
+            electionTimeoutFuture.cancel(true);
+        }
+        if (electionTimeoutExecutor != null) {
+            electionTimeoutExecutor.shutdownNow();
+            electionTimeoutExecutor = null;
+        }
     }
 
     public synchronized void startElectionAnswerMsgTimeout() {
 
-            if (electionAnswerMsgTimeOutExecutor == null) {
-                electionAnswerMsgTimeOutExecutor = Executors.newSingleThreadScheduledExecutor();
-            }
-            System.out.println("Election Answer timeout started!");
-            electionAnswerMsgTimeOutExecutor.schedule(() -> {
-                System.out.println("No Answer Messages were received within timeout");
-                informAndSetNewCoordinator(ServerState.getInstance().getLowerServerInfo());
-                endElectionAnswerMsgTimeout();
-            }, ELECTION_ANSWER_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
+        if (electionAnswerMsgTimeOutExecutor == null) {
+            electionAnswerMsgTimeOutExecutor = Executors.newSingleThreadScheduledExecutor();
+        }
+        logger.info("Election Answer timeout started!");
+        electionAnswerMsgTimeOutExecutor.schedule(() -> {
+            logger.info("No Answer Messages were received within timeout");
+            informAndSetNewCoordinator(ServerState.getInstance().getLowerServerInfo());
+            endElectionAnswerMsgTimeout();
+        }, ELECTION_ANSWER_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     public synchronized void endElectionAnswerMsgTimeout() {
-            // Stop the scheduled task to set self as coordinator
-            if (waitingForElectionAnswerMsg.get()) {
-                waitingForElectionAnswerMsg.set(false);
-                if (electionAnswerMsgTimeOutExecutor != null) {
-                    electionAnswerMsgTimeOutExecutor.shutdownNow();
-                }
-                electionAnswerMsgTimeOutExecutor = null;
+        // Stop the scheduled task to set self as coordinator
+        if (waitingForElectionAnswerMsg.get()) {
+            waitingForElectionAnswerMsg.set(false);
+            if (electionAnswerMsgTimeOutExecutor != null) {
+                electionAnswerMsgTimeOutExecutor.shutdownNow();
             }
+            electionAnswerMsgTimeOutExecutor = null;
+        }
     }
 
     public synchronized void endCoordinatorMessageTimeout() {
-            if (waitingForElectionCoordinatorMsg.get()) {
-                waitingForElectionCoordinatorMsg.set(false);
-                if (coordinatorMsgTimeOutExecutor != null) {
-                    coordinatorMsgTimeOutExecutor.shutdownNow();
-                }
-                coordinatorMsgTimeOutExecutor = null;
+        if (waitingForElectionCoordinatorMsg.get()) {
+            waitingForElectionCoordinatorMsg.set(false);
+            if (coordinatorMsgTimeOutExecutor != null) {
+                coordinatorMsgTimeOutExecutor.shutdownNow();
             }
-            System.out.println("Coordinator message timeout ended");
+            coordinatorMsgTimeOutExecutor = null;
+        }
+        logger.info("Coordinator message timeout ended");
     }
 
     public synchronized void startCoordinatorWaitTimeout() {
-            if (coordinatorMsgTimeOutExecutor == null) {
-                coordinatorMsgTimeOutExecutor = Executors.newSingleThreadScheduledExecutor();
-            }
-            waitingForElectionCoordinatorMsg.set(true);
-            coordinatorMsgTimeOutExecutor.schedule(() -> {
-                System.out.println("No coordinator messages were received within timeout");
-                instance.startElection(ServerState.getInstance().getHigherServerInfo());
-            }, COORDINATOR_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
-            System.out.println("Coordinator message timeout started");
+        if (coordinatorMsgTimeOutExecutor == null) {
+            coordinatorMsgTimeOutExecutor = Executors.newSingleThreadScheduledExecutor();
+        }
+        waitingForElectionCoordinatorMsg.set(true);
+        coordinatorMsgTimeOutExecutor.schedule(() -> {
+            logger.info("No coordinator messages were received within timeout");
+            instance.startElection(ServerState.getInstance().getHigherServerInfo());
+        }, COORDINATOR_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
+        logger.info("Coordinator message timeout started");
     }
 
     public void endElectionStart() {
@@ -137,7 +140,7 @@ public class BullyElection {
     }
 
     public void startElection(List<ServerInfo> higherServerList) {
-        System.out.println("startElection");
+        logger.info("startElection");
         List<ServerInfo> tryList = new LinkedList<>(higherServerList);
         int tryCount = tryList.size();
         int triesLeft = ELECTION_START_TRIES;
@@ -150,13 +153,13 @@ public class BullyElection {
             ServerInfo higherServer = tryList.remove(0);
             tryCount--;
 
-            System.out.println("higher server -> " + higherServer.getServerId());
+            logger.info("higher server -> " + higherServer.getServerId());
             try {
                 sendElectionStartMessage(higherServer);
                 endElectionStart();
                 break;
             } catch (ConnectException | InterruptedException e) {
-                System.out.println("higher server " + higherServer.getServerId() + " not alive");
+                logger.info("higher server " + higherServer.getServerId() + " not alive");
                 tryList.add(higherServer);
             }
 
@@ -179,12 +182,12 @@ public class BullyElection {
     }
 
     private void sendElectionStartMessage(ServerInfo higherServer) throws InterruptedException, ConnectException {
-        System.out.println("Election start sent to: " + higherServer.getServerId());
+        logger.info("Election start sent to: " + higherServer.getServerId());
         MessageSender.sendElectionStartMessage(higherServer);
     }
 
     public void replyAnswerMessage(ServerInfo requestingServer) {
-        System.out.println("replyAnswerMessage to " + requestingServer.getServerId());
+        logger.info("replyAnswerMessage to " + requestingServer.getServerId());
         try {
             MessageSender.sendElectionAnswerMessage(requestingServer);
         } catch (InterruptedException e) {
@@ -193,16 +196,15 @@ public class BullyElection {
     }
 
     public void informAndSetNewCoordinator(List<ServerInfo> lowerServerList) {
-        //TODO: Handle possible split-brain
         //inform lower priority servers about the new coordinator and set coordinator
-        System.out.println("inform lower priority servers about the new coordinator and set coordinator");
+        logger.info("inform lower priority servers about the new coordinator and set coordinator");
 
         for (ServerInfo lowerServer : lowerServerList) {
-            System.out.println(" lower servers -> " + lowerServer.getServerId());
+            logger.info(" lower servers -> " + lowerServer.getServerId());
             try {
                 sendElectionCoordinatorMessage(lowerServer);
             } catch (ConnectException | InterruptedException e) {
-                System.out.println("lower server " + lowerServer.getServerId() + " not alive");
+                logger.info("lower server " + lowerServer.getServerId() + " not alive");
             }
         }
         setNewCoordinator(ServerState.getInstance().getServerInfo());
@@ -216,7 +218,7 @@ public class BullyElection {
         try {
             MessageSender.sendCoordinatorInformationMessage(serverInfo);
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
+            logger.info(e.getMessage());
         }
     }
 
@@ -226,7 +228,7 @@ public class BullyElection {
         if (ServerState.getInstance().getServerInfo().equals(newCoordinator)) { // check if server is the leader
 
             if (!newCoordinator.equals(ServerState.getInstance().getCoordinator())) { // check previously not the leader
-                System.out.println("I am the leader");
+                logger.info("I am the leader");
                 ServerState.getInstance().setCoordinator(newCoordinator);
                 LeaderState.getInstance().assignOwnLists(); // assign own list by newly appointed leader
             }
@@ -237,12 +239,12 @@ public class BullyElection {
                 LeaderState.destroyLeaderInstance(); //
             }
             if (ServerState.getInstance().getCoordinator() == null) {
-                System.out.println("setNewCoordinator method when null");
+                logger.info("setNewCoordinator method when null");
                 ServerState.getInstance().setCoordinator(newCoordinator);
 
             } else {
                 if (!ServerState.getInstance().getCoordinator().equals(newCoordinator)) {
-                    System.out.println("setNewCoordinator method");
+                    logger.info("setNewCoordinator method");
                     ServerState.getInstance().setCoordinator(newCoordinator);
                 }
             }
@@ -250,15 +252,14 @@ public class BullyElection {
         }
 
         // Try all requests in the retry queue
-        while(ServerState.getInstance().getRetryQueue().size() > 0) {
+        while (ServerState.getInstance().getRetryQueue().size() > 0) {
             AbstractChatRequest request = ServerState.getInstance().getRetryQueue().poll();
-            if (request.getClient()!= null) {
+            if (request.getClient() != null) {
                 RequestHandlerFactory.requestHandler(request, request.getClient()).handleRequest();
             }
         }
     }
 
-    // TODO: Call this when the server shuts down to finish jobs.
     public synchronized void shutDownBullyElection() {
         if (electionTimeoutExecutor != null) {
             electionTimeoutExecutor.shutdown();
