@@ -36,6 +36,10 @@ public class ServerState {
         return serverInfo;
     }
 
+    public synchronized ConcurrentMap<String, ServerInfo> getServersList() {
+        return serversList;
+    }
+
     public synchronized List<ServerInfo> getServersListAsArrayList() {
         return new ArrayList<>(serversList.values());
     }

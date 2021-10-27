@@ -120,4 +120,11 @@ public class LeaderState {
         globalRoomList.forEach((key, value) -> System.out.println(key + " " + value));
     }
 
+    public String getServerFromRoomId(String roomId) {
+        if(globalRoomList.containsKey(roomId)){
+            return globalRoomList.get(roomId).getServerId();
+        }
+        return null;
+    }
+
 }

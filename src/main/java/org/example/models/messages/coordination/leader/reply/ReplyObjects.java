@@ -35,4 +35,12 @@ public final class ReplyObjects {
         reserveReply.put("serverName", serverId);
         return reserveReply;
     }
+
+    public static JSONObject roomIdInfoReply(String serverId, String roomOwnedServer) {
+        JSONObject roomInfoReply = new JSONObject();
+        roomInfoReply.put("type", "room_info_response");
+        roomInfoReply.put("serverName", serverId);
+        roomInfoReply.put("roomOwnedServerName", roomOwnedServer);
+        return roomInfoReply;
+    }
 }

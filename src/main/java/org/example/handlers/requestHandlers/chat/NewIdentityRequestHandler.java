@@ -13,6 +13,7 @@ import org.example.services.client.ChatClientServer;
 import org.example.services.coordination.MessageSender;
 import org.json.simple.JSONObject;
 
+import java.net.ConnectException;
 import java.util.Map;
 
 public class NewIdentityRequestHandler extends AbstractRequestHandler{
@@ -75,7 +76,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
         }
     }
 
-    public boolean approveIdentity(String identity) throws InterruptedException {
+    public boolean approveIdentity(String identity) throws InterruptedException{
 
         if (validateIdentityValue(identity)){
             if (ServerState.getInstance().isCoordinator()){

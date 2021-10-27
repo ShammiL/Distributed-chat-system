@@ -9,6 +9,7 @@ import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.request.GlobalRoomListRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReleaseRequest;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
+import org.example.models.messages.coordination.leader.request.RoomInfoRequest;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.client.CoordinationClient;
@@ -71,6 +72,15 @@ public final class MessageSender {
         JSONObject response = client.sendMessageAndGetStatus(new GlobalRoomListRequest(ServerState.getInstance().getServerInfo().getServerId()));
         System.out.println(response.toString());
         System.out.println("Request room list");
+        return response;
+    }
+
+    public static JSONObject requestRoomInfo(ServerInfo server, String roomId) throws InterruptedException {
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
+        JSONObject response = client.sendMessageAndGetStatus(new RoomInfoRequest(
+                ServerState.getInstance().getServerInfo().getServerId(),
+                roomId));
+        System.out.println("Inside MessageSender : requestRoomInfo");
         return response;
     }
 
