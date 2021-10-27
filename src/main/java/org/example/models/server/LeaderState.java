@@ -4,25 +4,51 @@ import org.example.models.client.GlobalClient;
 import org.example.models.room.GlobalRoom;
 import org.example.services.client.ChatClientServer;
 import org.example.services.coordination.ListServices;
+import org.example.services.coordination.MessageSender;
 
+import java.net.ConnectException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.Math.min;
+
+
 public class LeaderState {
+    public static final int HEARTBEAT_INTERVAL = 500;
+    public static AtomicInteger heartbeatSleep = new AtomicInteger(1000);
+    public static final int MAX_POSSIBLY_DOWN_ROUNDS = 5;
+    public static final String ALIVE = "ALIVE";
+    public static final String POSSIBLY_DOWN = "POSSIBLY_DOWN";
+    public static final String DOWN = "DOWN";
+
+
     private static LeaderState instance;
+
+    private final Map<String, String> followerStatus = new ConcurrentHashMap<>();
+    private final Map<String, Integer> serverDownRounds = new ConcurrentHashMap<>();
+    private static ScheduledExecutorService heartBeatExecutorService;
+
     private Map<String, GlobalClient> globalClientList = new ConcurrentHashMap<>();
     private Map<String, GlobalRoom> globalRoomList = new ConcurrentHashMap<>();
 
     public static synchronized LeaderState getInstance() {
         if (instance == null && ServerState.getInstance().getServerInfo().equals(ServerState.getInstance().getCoordinator())) {
             instance = new LeaderState();
-
         }
         return instance;
     }
 
     public static synchronized void destroyLeaderInstance() {
         System.out.println("Destroy previous leader instance");
+        if (heartBeatExecutorService != null) {
+            heartBeatExecutorService.shutdownNow();
+            heartBeatExecutorService = null;
+        }
         instance = null;
     }
 
@@ -116,8 +142,63 @@ public class LeaderState {
     }
 
     public void printLists(){
+
         globalClientList.forEach((key, value) -> System.out.println(key + " " + value));
         globalRoomList.forEach((key, value) -> System.out.println(key + " " + value));
+    }
+
+    public synchronized void startHearBeatJob() {
+        if (heartBeatExecutorService == null) {
+            heartBeatExecutorService = Executors.newSingleThreadScheduledExecutor();
+            heartBeatExecutorService.scheduleAtFixedRate(() -> {
+                System.out.println("Leader heart beat job is running in this server");
+
+                long aliveServers = followerStatus.entrySet().stream()
+                        .filter(s -> "ALIVE".equals(s.getValue())).count();
+
+                if (aliveServers == 0) {
+                    try {
+                        Thread.sleep(heartbeatSleep.get());
+                        heartbeatSleep.updateAndGet((value)-> min(value+1000, 5000));
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    heartbeatSleep = new AtomicInteger(1000);
+                }
+
+                for (ServerInfo server : ServerState.getInstance().getServersListAsArrayList()) {
+                    try {
+                        MessageSender.sendHeartBeatMessage(server, () -> {
+                            followerStatus.put(server.getServerId(), ALIVE);
+                            System.out.println("Server " + server.getServerId() + " is Alive");
+                        }, () -> handleHeartBeatSendFailure(server));
+                    } catch (ConnectException | InterruptedException ignored) {
+                        //This branch shouldn't execute
+                    }
+                }
+            }, 0, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void handleHeartBeatSendFailure(ServerInfo server) {
+
+            String currentStatus = followerStatus.get(server.getServerId());
+            if (POSSIBLY_DOWN.equals(currentStatus)) {
+                if (serverDownRounds.getOrDefault(server.getServerId(), 0) < MAX_POSSIBLY_DOWN_ROUNDS) {
+                    serverDownRounds.put(server.getServerId(),
+                            serverDownRounds.getOrDefault(server.getServerId(), 0) + 1);
+                } else if (serverDownRounds.get(server.getServerId()) == MAX_POSSIBLY_DOWN_ROUNDS) {
+                    removeClientListByServerID(server.getServerId());
+                    removeRoomListByServerID(server.getServerId());
+                    followerStatus.put(server.getServerId(), DOWN);
+                }
+                System.out.println("Server " + server.getServerId() + " is Possibly Down");
+            } else if (DOWN.equals(currentStatus)) {
+                System.out.println("Server " + server.getServerId() + " is Down");
+            } else if (ALIVE.equals(currentStatus)) {
+                followerStatus.put(server.getServerId(), POSSIBLY_DOWN);
+                System.out.println("Server " + server.getServerId() + " is Possibly Down");
+            }
     }
 
     public String getServerFromRoomId(String roomId) {

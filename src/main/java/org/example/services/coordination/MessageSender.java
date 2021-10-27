@@ -16,6 +16,7 @@ import org.example.services.coordination.client.CoordinationClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.net.ConnectException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MessageSender {
@@ -36,7 +37,6 @@ public final class MessageSender {
     public static void sendElectionStartMessage(ServerInfo server) throws InterruptedException {
         CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
         client.sendMessageAndGetStatus(new ElectionStartMessage(ServerState.getInstance().getServerInfo().getServerId()));
-
     }
 
     public static void sendCoordinatorInformationMessage(ServerInfo server) throws InterruptedException {
@@ -45,10 +45,9 @@ public final class MessageSender {
 
     }
 
-    public static void sendHeartBeatMessage(ServerInfo server) throws InterruptedException {
-        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
-        client.sendMessageAndGetStatus(new HeartbeatMessage(ServerState.getInstance().getServerInfo().getServerId()));
-
+    public static void sendHeartBeatMessage(ServerInfo server, Runnable success, Runnable failure) throws InterruptedException, ConnectException {
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort(), true);
+        client.sendMessageAndGetStatus(new HeartbeatMessage(ServerState.getInstance().getServerInfo().getServerId()), success, failure);
     }
 
     public static JSONObject reserveIdentity(ServerInfo server, String identity, String identityType) throws InterruptedException {

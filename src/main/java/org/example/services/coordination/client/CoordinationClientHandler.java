@@ -33,7 +33,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     private static String[] nonFireAndForgetTypes = {
             "identity_reserve_request",
             "identity_release_request",
-            "election_start",
+//            "election_start",
             "room_list",
             "room_info_request"
     };

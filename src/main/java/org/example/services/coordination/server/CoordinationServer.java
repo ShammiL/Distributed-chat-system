@@ -15,6 +15,7 @@ import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.decoders.CoordinationMessageDecoder;
 import org.example.services.coordination.election.BullyElection;
+//import org.example.services.coordination.validators.CoordinationMessageValidator;
 
 import java.io.IOException;
 
@@ -45,11 +46,11 @@ public class CoordinationServer {
             System.out.println("there are no higher priority servers");
             ServerState.getInstance().setCoordinator(ServerState.getInstance().getServerInfo()); // set self as the coordinator
             LeaderState.getInstance().assignOwnLists(); // set self ss the leader
-            new BullyElection().informAndSetNewCoordinator(
+            BullyElection.getInstance().informAndSetNewCoordinator(
                     ServerState.getInstance().getLowerServerInfo()
             );
         } else{
-            new BullyElection().startElection(ServerState.getInstance().getHigherServerInfo());
+            BullyElection.getInstance().startElection(ServerState.getInstance().getHigherServerInfo());
         }
 
 
@@ -69,6 +70,7 @@ public class CoordinationServer {
                                     new JsonObjectDecoder(),
                                     new CoordinationMessageDecoder(),
                                     new StringEncoder(CharsetUtil.UTF_8),
+//                                    new CoordinationMessageValidator(),
                                     new CoordinationServerHandler()
                             );
                         }

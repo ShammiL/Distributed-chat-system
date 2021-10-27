@@ -1,5 +1,6 @@
 package org.example.handlers.requestHandlers.coordination;
 
+import org.example.models.server.LeaderState;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
 import org.example.services.coordination.election.BullyElection;
@@ -19,16 +20,16 @@ public class ElectionStartMessageHandler extends AbstractCoordinationRequestHand
         System.out.println("Received Election Start Message from: " + server.getServerId());
 
 //        send answer message
-        new BullyElection().replyAnswerMessage(server);
+        BullyElection.getInstance().replyAnswerMessage(server);
 
 
         if (ServerState.getInstance().getHigherServerInfo().isEmpty()) {
 //                if there are no higher priority servers
             System.out.println("ElectionStartMessageHandler : there are no higher priority servers");
-            new BullyElection().informAndSetNewCoordinator(
+            BullyElection.getInstance().informAndSetNewCoordinator(
                     ServerState.getInstance().getLowerServerInfo());
         } else {
-            new BullyElection().startElection(ServerState.getInstance().getHigherServerInfo());
+            BullyElection.getInstance().startElection(ServerState.getInstance().getHigherServerInfo());
         }
 
         return null;
