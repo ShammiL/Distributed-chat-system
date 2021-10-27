@@ -88,7 +88,7 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     }
 
     private boolean checkUniqueIdentity(String identity) throws InterruptedException {
-//        return !ChatClientServer.localRoomIdLocalRoom.containsKey(identity);
+
         if (validateIdentityValue(identity)){
             if (ServerState.getInstance().isCoordinator()){
                 return !LeaderState.getInstance().getGlobalRoomList().containsKey(identity);
@@ -100,15 +100,6 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
                         "room"
                 );
                 System.out.println("reserveIdentity status : " + response.get("reserved"));
-////
-//                JSONObject response2 =  MessageSender.releaseIdentity(
-//                        ServerState.getInstance().getServerInfoById(
-//                                ServerState.getInstance().getCoordinator().getServerId()
-//                        ),
-//                        identity,
-//                        "room"
-//                );
-//                System.out.println("releaseIdentity status : " + response2.get("released"));
                 return  response.get("reserved").equals("true");
             }
 

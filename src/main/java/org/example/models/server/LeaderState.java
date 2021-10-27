@@ -94,12 +94,12 @@ public class LeaderState {
         }
     }
 
-    public synchronized void deleteAClient(GlobalClient client) {
-        globalClientList.remove(client.getIdentity());
+    public synchronized void deleteAClient(String clientId) {
+        globalClientList.remove(clientId);
     }
 
-    public synchronized void deleteARoom(GlobalRoom room) {
-        globalRoomList.remove(room.getRoomId());
+    public synchronized void deleteARoom(String roomId) {
+        globalRoomList.remove(roomId);
     }
 
     public void removeListsByServerID(String serverId) {
