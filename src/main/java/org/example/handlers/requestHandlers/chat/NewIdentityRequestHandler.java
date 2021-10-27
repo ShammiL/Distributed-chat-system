@@ -61,7 +61,14 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
             if (approved) {
                 getClient().setIdentity(request.getIdentity());
                 getClient().setRoom(ChatClientServer.getMainHal());
-                JSONObject roomChange = ReplyObjects.newIdRoomChange(getClient().getIdentity());
+                // if is leader add to global client list
+                if (ServerState.getInstance().isCoordinator()){
+                    GlobalClient gClient = new GlobalClient(request.getIdentity(),
+                            ServerState.getInstance().getServerInfo().getServerId());
+                    LeaderState.getInstance().checkAndAddClient(gClient);
+                }
+                JSONObject roomChange = ReplyObjects.newIdRoomChange(getClient().getIdentity(),
+                        ChatClientServer.getMainHal().getRoomId());
                 sendResponse(roomChange);
                 broadcast(roomChange, ChatClientServer.getMainHal());
             }
@@ -72,7 +79,8 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
 
         if (validateIdentityValue(identity)){
             if (ServerState.getInstance().isCoordinator()){
-                return !checkUniqueIdentity(identity); // todo: add client to global list
+                return !checkUniqueIdentity(identity);
+                // todo: add client to global list
             }
             else{
                 JSONObject response =  MessageSender.reserveIdentity(
@@ -84,15 +92,15 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
                 );
                 System.out.println("reserveIdentity status : " + response.get("reserved"));
 //
-                JSONObject response2 =  MessageSender.releaseIdentity(
-                        ServerState.getInstance().getServerInfoById(
-                                ServerState.getInstance().getCoordinator().getServerId()
-                        ),
-                        identity,
-                        "client"
-                );
-                System.out.println("releaseIdentity status : " + response2.get("released"));
-                return  response2.get("released").equals("true");
+//                JSONObject response2 =  MessageSender.releaseIdentity(
+//                        ServerState.getInstance().getServerInfoById(
+//                                ServerState.getInstance().getCoordinator().getServerId()
+//                        ),
+//                        identity,
+//                        "client"
+//                );
+//                System.out.println("releaseIdentity status : " + response2.get("released"));
+                return  response.get("reserved").equals("true");
             }
 
         }

@@ -10,6 +10,7 @@ import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
 import org.example.models.messages.coordination.leader.request.AbstractIdentityRequest;
+import org.example.models.server.LeaderState;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -30,7 +31,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
             "identity_reserve_request",
             "identity_release_request",
             "election_start",
-            "room_list"
+            "room_list",
     };
 
     public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj) {
@@ -53,8 +54,10 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
+        System.out.println(msg);
         if (requestSent.get()) {
             AbstractCoordinationMessage response = (AbstractCoordinationMessage) msg;
+
             switch (response.getType()) {
                 case "identity_release_response":
                     handleIdentityReleaseResponse((IdentityReleaseResponse) response);
@@ -63,7 +66,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
                     handleIdentityReserveResponse((IdentityReserveResponse) response);
                     break;
                 case "room_list_response":
-                    handleRoomListResponse((GlobalRoomResponse) response);
+                    handleRoomListResponse((GlobalRoomResponse) msg);
                     break;
                 default:
             }
@@ -73,6 +76,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
 
     @SuppressWarnings("unchecked")
     private void handleIdentityReserveResponse(IdentityReserveResponse response) {
+        System.out.println("handleIdentityReserveResponse");
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
         this.responseObj.clear();
 
@@ -94,6 +98,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
         this.responseObj.clear();
 
+        System.out.println("handleIdentityReleaseResponse");
         if (request.getIdentity().equals(response.getIdentity())
                 && request.getIdentityType().equals(response.getIdentityType())
                 && "success".equals(response.getStatus())) {
@@ -105,9 +110,10 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleRoomListResponse(GlobalRoomResponse response) {
         System.out.println("handle room list response ");
-
+        System.out.println(response.getGlobalRoomList());
         String jsonString = new Gson().toJson(response.getGlobalRoomList());
         this.responseObj.clear();
         this.responseObj.put("room_list", jsonString);

@@ -16,12 +16,12 @@ public class ReplyObjects {
     }
 
     @SuppressWarnings("unchecked")
-    public static JSONObject newIdRoomChange(String identity) {
+    public static JSONObject newIdRoomChange(String identity, String mainhall) {
         JSONObject idRoomChange = new JSONObject();
         idRoomChange.put("type", "roomchange");
         idRoomChange.put("identity", identity);
         idRoomChange.put("former", "");
-        idRoomChange.put("roomid", "MainHall-s1");
+        idRoomChange.put("roomid", mainhall);
         return idRoomChange;
     }
 
