@@ -9,7 +9,7 @@ import org.example.models.room.LocalRoom;
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
 
-public class QuitRequestHandler extends AbstractRequestHandler{
+public class QuitRequestHandler extends AbstractRequestHandler {
     private final QuitRequest request;
     private String identity;
     private String roomId;
@@ -35,9 +35,6 @@ public class QuitRequestHandler extends AbstractRequestHandler{
             JSONObject reply = processRequest();
             sendResponse(reply);
             broadcast(reply, getClient().getRoom());
-
-
-
 
 
         }
