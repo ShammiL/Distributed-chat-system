@@ -88,18 +88,14 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     }
 
     private boolean checkUniqueIdentity(String identity) throws InterruptedException {
-        // todo:: Change to global room list
 //        return !ChatClientServer.localRoomIdLocalRoom.containsKey(identity);
         if (validateIdentityValue(identity)){
             if (ServerState.getInstance().isCoordinator()){
                 return !LeaderState.getInstance().getGlobalRoomList().containsKey(identity);
-                // todo: add client to global list
             }
             else{
                 JSONObject response =  MessageSender.reserveIdentity(
-                        ServerState.getInstance().getServerInfoById(
-                                ServerState.getInstance().getCoordinator().getServerId()
-                        ),
+                        ServerState.getInstance().getCoordinator(),
                         identity,
                         "room"
                 );

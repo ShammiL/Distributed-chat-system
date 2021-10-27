@@ -20,7 +20,6 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler{
     private boolean approved;
     private String identity;
 
-    // todo: add client to global list
 
     public NewIdentityRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);

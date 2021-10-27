@@ -1,6 +1,7 @@
 package org.example.models.messages.coordination.leader.reply;
 
 
+import com.google.gson.annotations.SerializedName;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
 import org.example.models.room.GlobalRoom;
 
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GlobalRoomResponse extends AbstractCoordinationMessage {
-
+    @SerializedName("globalRoomList")
     private Map<String, GlobalRoom> globalRoomList = new ConcurrentHashMap<>();
 
 
