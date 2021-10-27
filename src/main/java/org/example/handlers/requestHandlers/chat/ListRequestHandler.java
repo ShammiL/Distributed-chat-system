@@ -43,7 +43,6 @@ public class ListRequestHandler extends AbstractRequestHandler {
                 sendRequestToLeaderAndSendResponseTOClient();
             }
         } catch (InterruptedException | ConnectException e) {
-            // todo: start election and resend request
             logger.error("Error when getting lists from the coordinator " + e.getMessage());
             request.incrementTries();
             ServerState.getInstance().addRetryRequest(request);

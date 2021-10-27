@@ -49,9 +49,7 @@ public class JoinRoomRequestHandler extends AbstractRequestHandler{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ConnectException e) {
-//                    e.printStackTrace();
                     System.out.println("leader not alive");
-//                  TODO ...
                     request.incrementTries();
                     retried = ServerState.getInstance().addRetryRequest(request);
                 }

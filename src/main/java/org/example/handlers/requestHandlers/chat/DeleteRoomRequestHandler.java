@@ -62,7 +62,6 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
                     deleteFromGlobalList();
                 } catch (InterruptedException | ConnectException e) {
                     logger.error("error when sending new identity to leader " + e.getMessage());
-                    // todo: start election and check again
                     request.incrementTries();
                     retried = ServerState.getInstance().addRetryRequest(request);
                 }

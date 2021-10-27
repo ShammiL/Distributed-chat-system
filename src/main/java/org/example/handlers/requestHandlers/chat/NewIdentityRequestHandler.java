@@ -46,7 +46,6 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
             approved = approveIdentity(identity);
         } catch (InterruptedException | ConnectException e) {
             logger.error("error when sending new identity to leader " + e.getMessage());
-            // todo: start election and check again
             request.incrementTries();
             retried = ServerState.getInstance().addRetryRequest(request);
         }
