@@ -54,6 +54,7 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
         AbstractChatRequest request = (AbstractChatRequest) msg;
         try {
             client = ChatClientServer.channelIdClient.get(ctx.channel().id());
+            request.setClient((Client) client);
             serveRequest(client, request);
         } finally {
             ReferenceCountUtil.release(msg);

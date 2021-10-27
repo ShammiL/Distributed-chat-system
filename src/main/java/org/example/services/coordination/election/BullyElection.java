@@ -1,5 +1,7 @@
 package org.example.services.coordination.election;
 
+import org.example.handlers.requestHandlers.chat.RequestHandlerFactory;
+import org.example.models.messages.chat.AbstractChatRequest;
 import org.example.models.server.LeaderState;
 import org.example.models.server.ServerInfo;
 import org.example.models.server.ServerState;
@@ -245,6 +247,14 @@ public class BullyElection {
                 }
             }
             startElectionTimeout();
+        }
+
+        // Try all requests in the retry queue
+        while(ServerState.getInstance().getRetryQueue().size() > 0) {
+            AbstractChatRequest request = ServerState.getInstance().getRetryQueue().poll();
+            if (request.getClient()!= null) {
+                RequestHandlerFactory.requestHandler(request, request.getClient()).handleRequest();
+            }
         }
     }
 
