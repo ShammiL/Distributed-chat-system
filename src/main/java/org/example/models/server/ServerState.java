@@ -36,6 +36,10 @@ public class ServerState {
         return serverInfo;
     }
 
+    public synchronized ConcurrentMap<String, ServerInfo> getServersList() {
+        return serversList;
+    }
+
     public synchronized List<ServerInfo> getServersListAsArrayList() {
         return new ArrayList<>(serversList.values());
     }
@@ -87,5 +91,9 @@ public class ServerState {
             return server1Id - server2Id;
         }
         return 0;
+    }
+
+    public synchronized boolean isCoordinator(){
+        return serverInfo.equals(coordinator);
     }
 }

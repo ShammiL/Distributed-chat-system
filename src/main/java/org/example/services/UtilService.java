@@ -8,4 +8,9 @@ public class UtilService {
         return s.matches("[a-zA-Z0-9]+");
     }
 
+    public static boolean isLikeMainHall(String s){
+        System.out.println(s.matches("^MainHall"));
+        return s.matches("^MainHall");
+    }
+
 }

@@ -1,12 +1,22 @@
 package org.example.services.coordination.client;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
+import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReserveResponse;
+import org.example.models.messages.coordination.leader.reply.RoomInfoResponse;
 import org.example.models.messages.coordination.leader.request.AbstractIdentityRequest;
+import org.example.models.server.LeaderState;
+import org.example.models.server.ServerInfo;
+import org.example.models.server.ServerState;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,18 +25,22 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
 
     private final AbstractCoordinationMessage message;
     private final AtomicBoolean requestSent = new AtomicBoolean(false);
-    private final AtomicBoolean status;
+    //    private final AtomicBoolean status;
+    private final JSONObject responseObj;
+    //    private JSONObject responseObj;
     private final boolean isFireAndForget;
 
     private static String[] nonFireAndForgetTypes = {
             "identity_reserve_request",
             "identity_release_request",
             "election_start",
+            "room_list",
+            "room_info_request"
     };
 
-    public CoordinationClientHandler(AbstractCoordinationMessage message, AtomicBoolean status){
+    public CoordinationClientHandler(AbstractCoordinationMessage message, JSONObject responseObj) {
         this.message = message;
-        this.status = status;
+        this.responseObj = responseObj;
         isFireAndForget = Arrays.stream(nonFireAndForgetTypes).noneMatch(type -> type.equals(message.getType()));
     }
 
@@ -35,7 +49,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         ctx.writeAndFlush(message);
-        if (isFireAndForget){
+        if (isFireAndForget) {
             ctx.close();
         }
         requestSent.set(true);
@@ -44,14 +58,22 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
+        System.out.println(msg);
         if (requestSent.get()) {
             AbstractCoordinationMessage response = (AbstractCoordinationMessage) msg;
-            switch (response.getType()){
+
+            switch (response.getType()) {
                 case "identity_release_response":
                     handleIdentityReleaseResponse((IdentityReleaseResponse) response);
                     break;
                 case "identity_reserve_response":
-                    handleIdentityReserveResponse((IdentityReserveResponse)response);
+                    handleIdentityReserveResponse((IdentityReserveResponse) response);
+                    break;
+                case "room_list_response":
+                    handleRoomListResponse((GlobalRoomResponse) msg);
+                    break;
+                case "room_info_response":
+                    handleRoomInfoResponse((RoomInfoResponse) msg);
                     break;
                 default:
             }
@@ -59,25 +81,69 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleIdentityReserveResponse(IdentityReserveResponse response) {
+        System.out.println("handleIdentityReserveResponse");
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
+        this.responseObj.clear();
+
         if (request.getIdentity().equals(response.getIdentity())
-                && request.getIdentityType().equals(response.getIdentityType()) && "success".equals(response.getStatus())) {
+                && request.getIdentityType().equals(response.getIdentityType())
+                && "success".equals(response.getStatus())) {
             // Reserve identity successful
-            this.status.set(true);
+//            this.status.set(true);
+            this.responseObj.put("reserved", "true");
+
+        } else {
+            this.responseObj.put("reserved", "false");
+
         }
-        //TODO: else?
     }
 
+    @SuppressWarnings("unchecked")
     private void handleIdentityReleaseResponse(IdentityReleaseResponse response) {
         AbstractIdentityRequest request = (AbstractIdentityRequest) message;
+        this.responseObj.clear();
+
+        System.out.println("handleIdentityReleaseResponse");
         if (request.getIdentity().equals(response.getIdentity())
-        && request.getIdentityType().equals(response.getIdentityType())
+                && request.getIdentityType().equals(response.getIdentityType())
                 && "success".equals(response.getStatus())) {
             // Release identity successful
-            this.status.set(true);
+            this.responseObj.put("released", "true");
+        } else {
+            this.responseObj.put("released", "false");
+
         }
-        //TODO: else?
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleRoomListResponse(GlobalRoomResponse response) {
+        System.out.println("handle room list response");
+        System.out.println(response.getGlobalRoomList());
+        String jsonString = new Gson().toJson(response);
+        this.responseObj.clear();
+        this.responseObj.put("room_list", jsonString);
+        System.out.println(responseObj);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleRoomInfoResponse(RoomInfoResponse msg){
+        System.out.println("handleRoomInfoResponse");
+
+        this.responseObj.clear();
+        String roomOwnedServerName = msg.getRoomOwnedServerName();
+        System.out.println("RoomOwnedServerName : " + roomOwnedServerName);
+        if(roomOwnedServerName != null) {
+            ServerInfo roomOwnedServer = ServerState.getInstance().getServersList().get(roomOwnedServerName);
+            int clientPort = roomOwnedServer.getClientPort();
+            String serverAddress = roomOwnedServer.getServerAddress();
+            System.out.println(clientPort + " " + serverAddress);
+
+            this.responseObj.put("host", serverAddress);
+            this.responseObj.put("port", clientPort);
+        }
     }
 
     @Override
