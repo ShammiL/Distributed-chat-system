@@ -1,6 +1,7 @@
 package org.example.handlers.requestHandlers.chat;
 
 
+import org.apache.log4j.Logger;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
 import org.example.models.messages.chat.reply.ReplyObjects;
@@ -16,11 +17,14 @@ import org.example.services.UtilService;
 import org.example.services.coordination.MessageSender;
 import org.json.simple.JSONObject;
 
+import java.net.ConnectException;
+
 
 public class CreateRoomRequestHandler extends AbstractRequestHandler {
     private final CreateRoomRequest request;
     private boolean approved;
     private String roomId;
+    private final Logger logger = Logger.getLogger(CreateRoomRequestHandler.class);
 
     public CreateRoomRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
@@ -57,7 +61,7 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
                         room);// add new room to local list
 
                 // if leader add to global list
-                if(ServerState.getInstance().isCoordinator()){
+                if (ServerState.getInstance().isCoordinator()) {
                     GlobalRoom gRoom = new GlobalRoom(request.getRoomId(), ServerState.getInstance().getServerInfo().getServerId());
                     LeaderState.getInstance().checkAndAddRoom(gRoom);
                 }
@@ -72,11 +76,12 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     }
 
     private boolean approveIdentity(String identity) {
-        if (validateIdentityValue(identity) &&  checkIsARoomCreator()) {
+        if (validateIdentityValue(identity) && checkIsARoomCreator()) {
             try {
                 return checkUniqueIdentity(identity);
-            } catch (InterruptedException e) {
-                System.out.println("Interrupt exception in check unique identity room");
+            } catch (InterruptedException | ConnectException e) {
+                logger.error("error when sending new identity to leader " + e.getMessage());
+                // todo: start election and check again
                 return false;
             }
         } else return false;
@@ -84,31 +89,29 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
 
     private boolean validateIdentityValue(String identity) {
         if (identity.length() < 3 || identity.length() > 16) return false;
-        else return UtilService.isAlphaNumeric(identity) ;
+        else return UtilService.isAlphaNumeric(identity);
     }
 
-    private boolean checkUniqueIdentity(String identity) throws InterruptedException {
+    private boolean checkUniqueIdentity(String identity) throws InterruptedException, ConnectException {
 
-        if (validateIdentityValue(identity)){
-            if (ServerState.getInstance().isCoordinator()){
+        if (validateIdentityValue(identity)) {
+            if (ServerState.getInstance().isCoordinator()) {
                 return !LeaderState.getInstance().getGlobalRoomList().containsKey(identity);
-            }
-            else{
-                JSONObject response =  MessageSender.reserveIdentity(
+            } else {
+                JSONObject response = MessageSender.reserveIdentity(
                         ServerState.getInstance().getCoordinator(),
                         identity,
                         "room"
                 );
                 System.out.println("reserveIdentity status : " + response.get("reserved"));
-                return  response.get("reserved").equals("true");
+                return response.get("reserved").equals("true");
             }
 
-        }
-        else return false;
+        } else return false;
     }
 
-    private boolean checkIsARoomCreator(){
-        if (getClient().getRoom().equals(ChatClientServer.getMainHal())){
+    private boolean checkIsARoomCreator() {
+        if (getClient().getRoom().equals(ChatClientServer.getMainHal())) {
             return true;
         }
         return !((LocalRoom) getClient().getRoom()).getOwner().equals(getClient().getIdentity());

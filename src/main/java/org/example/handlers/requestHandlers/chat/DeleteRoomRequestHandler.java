@@ -54,33 +54,33 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
                 ChatClientServer.localRoomIdLocalRoom.remove(request.getRoomId());
                 //send to leader to delete from global list
 
-                deleteFromGlobalList();
+                try {
+                    deleteFromGlobalList();
+                } catch (InterruptedException | ConnectException e) {
+                    logger.error("error when sending new identity to leader " + e.getMessage());
+                    // todo: start election and check again
+                }
             }
 
         }
     }
 
 
-    private void deleteFromGlobalList(){
+    private void deleteFromGlobalList() throws InterruptedException, ConnectException {
         if (ServerState.getInstance().isCoordinator()){
             LeaderState.getInstance().deleteARoom(request.getRoomId());
         }
         else {
             //  send server request
             JSONObject response = null;
-            try {
-                response = MessageSender.releaseIdentity(
-                        ServerState.getInstance().getCoordinator(),
-                        request.getRoomId(),
-                        "room"
-                );
-                System.out.println("releaseIdentity status : " + response.get("released"));
-            } catch (InterruptedException e) {
-                logger.error("Interrupted exception :" + e.getMessage());
-//                if (e instanceof ConnectException){
-//                    // todo: start election
-//                }
-            }
+
+            response = MessageSender.releaseIdentity(
+                    ServerState.getInstance().getCoordinator(),
+                    request.getRoomId(),
+                    "room"
+            );
+            System.out.println("releaseIdentity status : " + response.get("released"));
+
         }
 
     }
