@@ -121,7 +121,7 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     private void handleRoomListResponse(GlobalRoomResponse response) {
         System.out.println("handle room list response");
         System.out.println(response.getGlobalRoomList());
-        String jsonString = new Gson().toJson(response.getGlobalRoomList());
+        String jsonString = new Gson().toJson(response);
         this.responseObj.clear();
         this.responseObj.put("room_list", jsonString);
         System.out.println(responseObj);
