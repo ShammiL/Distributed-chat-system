@@ -3,6 +3,8 @@ package org.example.models.messages.chat.reply;
 import org.example.services.client.ChatClientServer;
 import org.json.simple.JSONObject;
 
+import java.util.List;
+
 public class ReplyObjects {
     private ReplyObjects() {}
     @SuppressWarnings("unchecked")
@@ -64,6 +66,15 @@ public class ReplyObjects {
         msg.put("type", "deleteroom");
         msg.put("roomid", roomId);
         msg.put("serverid", ChatClientServer.getInstance().getId());
+        return msg;
+    }
+
+    public static JSONObject roomContents(String roomId, List<String> identities, String owner) {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "roomcontents");
+        msg.put("roomid", roomId);
+        msg.put("identities", identities);
+        msg.put("owner", owner);
         return msg;
     }
 }
