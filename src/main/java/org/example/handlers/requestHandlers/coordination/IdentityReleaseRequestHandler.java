@@ -23,15 +23,13 @@ public class IdentityReleaseRequestHandler extends AbstractCoordinationRequestHa
                 request.getIdentityType() + " " +
                 request.getServerName()
         );
-//        return null;
-        boolean approved = false;
-        // todo: delete from global lists
-//        if (request.getIdentity().equals("room")){
-//            approved = !LeaderState.getInstance().getGlobalRoomList().containsKey(request.getIdentity());
-//        }
-//        else if (request.getIdentity().equals("client")){
-//            approved = !LeaderState.getInstance().getGlobalClientList().containsKey(request.getIdentity());
-//        }
+
+        if (request.getIdentityType().equals("room")){
+            LeaderState.getInstance().deleteARoom(request.getIdentity());
+        }
+        else if (request.getIdentityType().equals("client")){
+            LeaderState.getInstance().deleteAClient(request.getIdentity());
+        }
         return ReplyObjects.identityReleaseReply(
                 true,
                 request.getIdentity(),

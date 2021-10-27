@@ -25,7 +25,7 @@ public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHa
                 request.getIdentityType() + " " +
                 request.getServerName()
         );
-//        return null;
+
         boolean approved = false;
 
         if (request.getIdentityType().equals("room")){

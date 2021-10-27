@@ -2,20 +2,29 @@ package org.example.services.client;
 
 import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
+import org.apache.log4j.Logger;
 import org.example.handlers.requestHandlers.chat.AbstractRequestHandler;
 import org.example.handlers.requestHandlers.chat.DeleteRoomRequestHandler;
 import org.example.handlers.requestHandlers.chat.QuitRequestHandler;
 import org.example.handlers.requestHandlers.chat.RequestHandlerFactory;
 import org.example.models.client.Client;
+import org.example.models.client.GlobalClient;
 import org.example.models.client.IClient;
 import org.example.models.messages.chat.AbstractChatRequest;
 import org.example.models.messages.chat.requests.chat.DeleteRoomRequest;
 import org.example.models.messages.chat.requests.chat.QuitRequest;
+import org.example.models.room.GlobalRoom;
+import org.example.models.server.LeaderState;
+import org.example.models.server.ServerState;
+import org.example.services.coordination.MessageSender;
+import org.json.simple.JSONObject;
 
 public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
     private ChannelHandlerContext ctx;
     IClient client;
+    private final Logger logger = Logger.getLogger(ChatServerHandler.class);
+
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -57,6 +66,7 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
         if (requestHandler instanceof QuitRequestHandler) {
             ctx.close();
             ChatClientServer.channelIdClient.remove(ctx.channel().id());
+            deleteFromGlobalClient(((Client) client).getIdentity());
             if (((QuitRequestHandler)requestHandler).isCurrentOwner()) {
                 DeleteRoomRequestHandler deleteRoomRequestHandler = new DeleteRoomRequestHandler(new DeleteRoomRequest(((Client) client).getRoom().getRoomId()), client);
                 deleteRoomRequestHandler.handleRequest();
@@ -65,6 +75,26 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
     }
 
+    private void deleteFromGlobalClient(String clientId){
+        // if leader add to global list
+        if(ServerState.getInstance().isCoordinator()){
+            LeaderState.getInstance().deleteAClient(clientId);
+        }
+        else {
+            //  send server request
+            JSONObject response = null;
+            try {
+                response = MessageSender.releaseIdentity(
+                        ServerState.getInstance().getCoordinator(),
+                        clientId,
+                        "client"
+                );
+                System.out.println("releaseIdentity status : " + response.get("released"));
+            } catch (InterruptedException e) {
+                logger.error("Interrupted exception :" + e.getMessage());
+            }
+        }
+    }
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 //        cause.printStackTrace();
