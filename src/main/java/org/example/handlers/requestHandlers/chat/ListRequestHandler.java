@@ -30,7 +30,6 @@ public class ListRequestHandler extends AbstractRequestHandler {
                     ServerState.getInstance().getCoordinator()
             );
         } catch (InterruptedException e) {
-            e.printStackTrace();
             System.out.println("error in handle request");
         }
         System.out.println(response.toString());

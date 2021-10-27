@@ -67,30 +67,31 @@ public class LeaderState {
         printLists();
     }
 
-    public synchronized GlobalClient checkAndAddClient(GlobalClient client) {
+    public synchronized boolean checkAndAddClient(GlobalClient client) {
         if (globalClientList.containsKey(client.getIdentity())) {
             client.setAccepted(false);
             System.out.println("user " + client.getIdentity() + " already exist");
+            return false;
         } else {
             client.setAccepted(true);
             globalClientList.put(client.getIdentity(), client);
             System.out.println(client.getIdentity() + " user added successfully");
+            return true;
         }
-
-        return client;
 
     }
 
-    public synchronized GlobalRoom checkAndAddRoom(GlobalRoom room) {
+    public synchronized boolean checkAndAddRoom(GlobalRoom room) {
         if (globalRoomList.containsKey(room.getRoomId())) {
             room.setAccepted(false);
             System.out.println("room " + room.getRoomId() + " already exist");
+            return false;
         } else {
             room.setAccepted(true);
             globalRoomList.put(room.getRoomId(), room);
             System.out.println(room.getRoomId() + " added successfully");
+            return true;
         }
-        return room;
     }
 
     public synchronized void deleteAClient(GlobalClient client) {
