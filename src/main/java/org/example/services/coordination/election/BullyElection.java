@@ -1,6 +1,7 @@
 package org.example.services.coordination.election;
 
 import org.apache.log4j.Logger;
+import org.example.config.Config;
 import org.example.handlers.requestHandlers.chat.RequestHandlerFactory;
 import org.example.models.messages.chat.AbstractChatRequest;
 import org.example.models.server.LeaderState;
@@ -19,13 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class BullyElection {
-
-    public static final int ELECTION_START_TRIES = 3;
-    public static final int ELECTION_START_RETRY_SLEEP = 200;
-    public static final int ELECTION_START_TIMEOUT = 1000;
-    public static final int ELECTION_ANSWER_MESSAGE_TIMEOUT = 2000;
-    public static final int COORDINATOR_MESSAGE_TIMEOUT = 3000;
-    public static final int HEARTBEAT_THRESHOLD = ELECTION_START_TIMEOUT;
 
     private AtomicBoolean waitingForElectionAnswerMsg = new AtomicBoolean(false);
     private AtomicBoolean waitingForElectionCoordinatorMsg = new AtomicBoolean(false);
@@ -68,13 +62,13 @@ public class BullyElection {
         }
         lastHeartBeatTime.set(System.currentTimeMillis());
         electionTimeoutFuture = electionTimeoutExecutor.schedule(() -> {
-            if (System.currentTimeMillis() - lastHeartBeatTime.get() > HEARTBEAT_THRESHOLD) {
+            if (System.currentTimeMillis() - lastHeartBeatTime.get() > Config.HEARTBEAT_THRESHOLD) {
                 logger.info("Starting election because leader didn't send heartbeat");
                 BullyElection.getInstance().startElection(
                         ServerState.getInstance().getHigherServerInfo()
                 );
             }
-        }, ELECTION_START_TIMEOUT, TimeUnit.MILLISECONDS);
+        }, Config.ELECTION_START_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     public synchronized void endElectionTimeout() {
@@ -98,7 +92,7 @@ public class BullyElection {
             logger.info("No Answer Messages were received within timeout");
             informAndSetNewCoordinator(ServerState.getInstance().getLowerServerInfo());
             endElectionAnswerMsgTimeout();
-        }, ELECTION_ANSWER_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
+        }, Config.ELECTION_ANSWER_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     public synchronized void endElectionAnswerMsgTimeout() {
@@ -131,7 +125,7 @@ public class BullyElection {
         coordinatorMsgTimeOutExecutor.schedule(() -> {
             logger.info("No coordinator messages were received within timeout");
             instance.startElection(ServerState.getInstance().getHigherServerInfo());
-        }, COORDINATOR_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
+        }, Config.COORDINATOR_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
         logger.info("Coordinator message timeout started");
     }
 
@@ -143,7 +137,7 @@ public class BullyElection {
         logger.info("startElection");
         List<ServerInfo> tryList = new LinkedList<>(higherServerList);
         int tryCount = tryList.size();
-        int triesLeft = ELECTION_START_TRIES;
+        int triesLeft = Config.ELECTION_START_TRIES;
 
         waitingForElectionAnswerMsg.set(true);
         continueElection.set(true);
@@ -166,14 +160,14 @@ public class BullyElection {
             if (tryCount == 0) {
                 // One round of tries is complete
 
-                if (triesLeft == ELECTION_START_TRIES) {
+                if (triesLeft == Config.ELECTION_START_TRIES) {
                     // If first round of tries
                     startElectionAnswerMsgTimeout();
                 }
 
                 triesLeft--;
                 try {
-                    Thread.sleep(ELECTION_START_RETRY_SLEEP);
+                    Thread.sleep(Config.ELECTION_START_RETRY_SLEEP);
                 } catch (InterruptedException ignored) {
                 }
                 tryCount = tryList.size();

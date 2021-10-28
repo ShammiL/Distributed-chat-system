@@ -9,7 +9,6 @@ import org.kohsuke.args4j.CmdLineParser;
 
 
 public class Main {
-    private static final Logger logger = Logger.getLogger(Main.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -22,6 +21,9 @@ public class Main {
             parser.parseArgument(args);
             serverId = values.getServerId();
             serverConfig = values.getServerConfig();
+            System.setProperty("server_id", serverId);
+
+            Logger logger = Logger.getLogger(Main.class);
             logger.info("server config set");
 
             new ConfigReaderService().readFile(serverConfig, serverId);
@@ -38,7 +40,7 @@ public class Main {
             ChatClientServer.getInstance().run();
 
         } catch (CmdLineException e) {
-            logger.error(e.getMessage());
+//            logger.error(e.getMessage());
         }
     }
 }

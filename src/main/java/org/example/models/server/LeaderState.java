@@ -1,6 +1,7 @@
 package org.example.models.server;
 
 import org.apache.log4j.Logger;
+import org.example.config.Config;
 import org.example.models.client.GlobalClient;
 import org.example.models.room.GlobalRoom;
 import org.example.services.client.ChatClientServer;
@@ -20,12 +21,8 @@ import static java.lang.Math.min;
 
 
 public class LeaderState {
-    public static final int HEARTBEAT_INTERVAL = 500;
-    public static AtomicInteger heartbeatSleep = new AtomicInteger(1000);
-    public static final int MAX_POSSIBLY_DOWN_ROUNDS = 5;
-    public static final String ALIVE = "ALIVE";
-    public static final String POSSIBLY_DOWN = "POSSIBLY_DOWN";
-    public static final String DOWN = "DOWN";
+    public static AtomicInteger heartbeatSleep = new AtomicInteger(Config.HEARTBEAT_SLEEP_TIME);
+
     private final Logger logger = Logger.getLogger(LeaderState.class);
 
 
@@ -170,34 +167,34 @@ public class LeaderState {
                 for (ServerInfo server : ServerState.getInstance().getServersListAsArrayList()) {
                     try {
                         MessageSender.sendHeartBeatMessage(server, () -> {
-                            followerStatus.put(server.getServerId(), ALIVE);
+                            followerStatus.put(server.getServerId(), Config.ALIVE);
                             logger.info("Server " + server.getServerId() + " is Alive");
                         }, () -> handleHeartBeatSendFailure(server));
                     } catch (ConnectException | InterruptedException ignored) {
                         //This branch shouldn't execute
                     }
                 }
-            }, 0, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
+            }, 0, Config.HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
         }
     }
 
     private void handleHeartBeatSendFailure(ServerInfo server) {
 
         String currentStatus = followerStatus.get(server.getServerId());
-        if (POSSIBLY_DOWN.equals(currentStatus)) {
-            if (serverDownRounds.getOrDefault(server.getServerId(), 0) < MAX_POSSIBLY_DOWN_ROUNDS) {
+        if (Config.POSSIBLY_DOWN.equals(currentStatus)) {
+            if (serverDownRounds.getOrDefault(server.getServerId(), 0) < Config.MAX_POSSIBLY_DOWN_ROUNDS) {
                 serverDownRounds.put(server.getServerId(),
                         serverDownRounds.getOrDefault(server.getServerId(), 0) + 1);
-            } else if (serverDownRounds.get(server.getServerId()) == MAX_POSSIBLY_DOWN_ROUNDS) {
+            } else if (serverDownRounds.get(server.getServerId()) == Config.MAX_POSSIBLY_DOWN_ROUNDS) {
                 removeClientListByServerID(server.getServerId());
                 removeRoomListByServerID(server.getServerId());
-                followerStatus.put(server.getServerId(), DOWN);
+                followerStatus.put(server.getServerId(), Config.DOWN);
             }
             logger.info("Server " + server.getServerId() + " is Possibly Down");
-        } else if (DOWN.equals(currentStatus)) {
+        } else if (Config.DOWN.equals(currentStatus)) {
             logger.info("Server " + server.getServerId() + " is Down");
-        } else if (ALIVE.equals(currentStatus)) {
-            followerStatus.put(server.getServerId(), POSSIBLY_DOWN);
+        } else if (Config.ALIVE.equals(currentStatus)) {
+            followerStatus.put(server.getServerId(), Config.POSSIBLY_DOWN);
             logger.info("Server " + server.getServerId() + " is Possibly Down");
         }
     }
