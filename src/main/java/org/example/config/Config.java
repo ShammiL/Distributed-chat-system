@@ -5,8 +5,6 @@ public class Config {
     private Config() {
     }
 
-    public static final int ELECTION_START_TRIES = 3;
-    public static final int ELECTION_START_RETRY_SLEEP = 400;
     public static final int ELECTION_START_TIMEOUT = 2000;
     public static final int ELECTION_ANSWER_MESSAGE_TIMEOUT = 4000;
     public static final int COORDINATOR_MESSAGE_TIMEOUT = 6000;
@@ -21,6 +19,10 @@ public class Config {
 
     public static final int RETRY_JOB_INTERVAL = 5000;
     public static final int RETRY_JOB_START_DELAY = 5000;
-    public static final int MAX_REQUEST_RETRIES = 5;
-    public static final int MAX_RETRY_QUEUE_SIZE = 500;
+    public static final int MAX_CHAT_REQUEST_RETRIES = 5;
+    public static final int MAX_CHAT_RETRY_QUEUE_SIZE = 500;
+
+    public static final int COORDINATION_MESSAGE_RETRIES = 5;
+    public static final int COORDINATION_MESSAGE_RETRY_INTERVAL = 1000;
+    public static final int MINIMUM_SERVER_VOTES = 2;
 }

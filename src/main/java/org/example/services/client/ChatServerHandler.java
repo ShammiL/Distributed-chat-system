@@ -19,6 +19,8 @@ import org.example.models.server.ServerState;
 import org.example.services.coordination.MessageSender;
 import org.json.simple.JSONObject;
 
+import java.net.ConnectException;
+
 public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
     private ChannelHandlerContext ctx;
@@ -83,7 +85,7 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
                         clientId,
                         "client"
                 );
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | ConnectException e) {
                 logger.error("Interrupted exception :" + e.getMessage());
             }
         }

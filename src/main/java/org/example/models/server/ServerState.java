@@ -49,8 +49,8 @@ public class ServerState {
 
     public boolean addRetryRequest(AbstractChatRequest request) {
 
-        if (request.getTries() <= Config.MAX_REQUEST_RETRIES) {
-            if (retryQueue.size() >= Config.MAX_RETRY_QUEUE_SIZE) {
+        if (request.getTries() <= Config.MAX_CHAT_REQUEST_RETRIES) {
+            if (retryQueue.size() >= Config.MAX_CHAT_RETRY_QUEUE_SIZE) {
                 AbstractChatRequest requestToBeRemoved = retryQueue.peek();
                 for (AbstractChatRequest retryRequest : retryQueue) {
                     if (retryRequest.getTries() > requestToBeRemoved.getTries()) {

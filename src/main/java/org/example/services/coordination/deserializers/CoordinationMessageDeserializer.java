@@ -2,10 +2,7 @@ package org.example.services.coordination.deserializers;
 
 import com.google.gson.*;
 import org.example.models.messages.coordination.AbstractCoordinationMessage;
-import org.example.models.messages.coordination.election.CoordinatorInformationMessage;
-import org.example.models.messages.coordination.election.ElectionAnswerMessage;
-import org.example.models.messages.coordination.election.ElectionCoordinatorMessage;
-import org.example.models.messages.coordination.election.ElectionStartMessage;
+import org.example.models.messages.coordination.election.*;
 import org.example.models.messages.coordination.heartbeat.HeartbeatMessage;
 import org.example.models.messages.coordination.leader.reply.GlobalRoomResponse;
 import org.example.models.messages.coordination.leader.reply.IdentityReleaseResponse;
@@ -33,6 +30,9 @@ public class CoordinationMessageDeserializer implements JsonDeserializer<Abstrac
                 break;
             case "electioncoordinator":
                 request = jsonDeserializationContext.deserialize(jsonElement, ElectionCoordinatorMessage.class);
+                break;
+            case "currentcoordinator":
+                request = jsonDeserializationContext.deserialize(jsonElement, CurrentCoordinatorMessage.class);
                 break;
             case "electionstart":
                 request = jsonDeserializationContext.deserialize(jsonElement, ElectionStartMessage.class);
