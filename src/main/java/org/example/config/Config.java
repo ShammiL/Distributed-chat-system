@@ -18,4 +18,9 @@ public class Config {
     public static final String POSSIBLY_DOWN = "POSSIBLY_DOWN";
     public static final String DOWN = "DOWN";
     public static final int HEARTBEAT_SLEEP_TIME = 1000;
+
+    public static final int RETRY_JOB_INTERVAL = 5000;
+    public static final int RETRY_JOB_START_DELAY = 5000;
+    public static final int MAX_REQUEST_RETRIES = 5;
+    public static final int MAX_RETRY_QUEUE_SIZE = 500;
 }

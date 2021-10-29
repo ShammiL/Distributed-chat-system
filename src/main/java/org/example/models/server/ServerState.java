@@ -1,17 +1,16 @@
 package org.example.models.server;
 
+import org.example.config.Config;
+import org.example.handlers.requestHandlers.chat.RequestHandlerFactory;
 import org.example.models.messages.chat.AbstractChatRequest;
+import org.example.services.coordination.election.BullyElection;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 public class ServerState {
-    private static final int MAX_RETRY_QUEUE_SIZE = 500;
-    private static final int MAX_RETRIES = 3;
     private static ServerState instance;
     private ServerInfo serverInfo;
     private ServerInfo coordinator;
@@ -19,7 +18,22 @@ public class ServerState {
     private final ConcurrentMap<String, ServerInfo> higherServerInfo = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, ServerInfo> lowerServerInfo = new ConcurrentHashMap<>();
     private final Queue<AbstractChatRequest> retryQueue = new ConcurrentLinkedQueue<>();
+    private final ScheduledExecutorService retryExecutorService;
     private ServerState() {
+
+        if (Config.RETRY_JOB_INTERVAL > 0) {
+            retryExecutorService = Executors.newSingleThreadScheduledExecutor();
+            retryExecutorService.scheduleAtFixedRate(() -> {
+                while (ServerState.getInstance().getRetryQueue().size() > 0
+                && !BullyElection.getInstance().getWaitingForElectionAnswerMsg()
+                && !BullyElection.getInstance().getWaitingForElectionCoordinatorMsg()) {
+                    AbstractChatRequest request = ServerState.getInstance().getRetryQueue().poll();
+                    if (request != null && request.getClient() != null) {
+                        RequestHandlerFactory.requestHandler(request, request.getClient()).handleRequest();
+                    }
+                }
+            }, Config.RETRY_JOB_START_DELAY, Config.RETRY_JOB_INTERVAL, TimeUnit.MILLISECONDS);
+        }
     }
 
     public static synchronized ServerState getInstance() {
@@ -35,8 +49,8 @@ public class ServerState {
 
     public boolean addRetryRequest(AbstractChatRequest request) {
 
-        if (request.getTries() <= MAX_RETRIES) {
-            if (retryQueue.size() >= MAX_RETRY_QUEUE_SIZE) {
+        if (request.getTries() <= Config.MAX_REQUEST_RETRIES) {
+            if (retryQueue.size() >= Config.MAX_RETRY_QUEUE_SIZE) {
                 AbstractChatRequest requestToBeRemoved = retryQueue.peek();
                 for (AbstractChatRequest retryRequest : retryQueue) {
                     if (retryRequest.getTries() > requestToBeRemoved.getTries()) {

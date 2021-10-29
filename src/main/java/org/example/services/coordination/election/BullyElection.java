@@ -49,6 +49,13 @@ public class BullyElection {
         return waitingForElectionAnswerMsg.get();
     }
 
+    public boolean getWaitingForElectionCoordinatorMsg() {
+        return waitingForElectionCoordinatorMsg.get();
+    }
+
+    public boolean getContinueElection() {
+        return continueElection.get();
+    }
     public synchronized void restartElectionTimeout() {
 
         endElectionTimeout();
@@ -91,6 +98,7 @@ public class BullyElection {
         electionAnswerMsgTimeOutExecutor.schedule(() -> {
             logger.info("No Answer Messages were received within timeout");
             informAndSetNewCoordinator(ServerState.getInstance().getLowerServerInfo());
+            endElectionStart();
             endElectionAnswerMsgTimeout();
         }, Config.ELECTION_ANSWER_MESSAGE_TIMEOUT, TimeUnit.MILLISECONDS);
     }
@@ -248,7 +256,7 @@ public class BullyElection {
         // Try all requests in the retry queue
         while (ServerState.getInstance().getRetryQueue().size() > 0) {
             AbstractChatRequest request = ServerState.getInstance().getRetryQueue().poll();
-            if (request.getClient() != null) {
+            if (request != null && request.getClient() != null) {
                 RequestHandlerFactory.requestHandler(request, request.getClient()).handleRequest();
             }
         }
