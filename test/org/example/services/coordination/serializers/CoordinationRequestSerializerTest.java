@@ -37,7 +37,7 @@ public class CoordinationRequestSerializerTest extends TestCase {
     @Test
     public void identityReserveRequestTest() {
         String json = gson.toJson(new IdentityReserveRequest("test", "room", "s1"));
-        assertEquals(json,"{\"identity\":\"test\",\"identity_type\":\"room\",\"serverName\":\"s1\"," +
+        assertEquals(json,"{\"identity\":\"test\",\"identityType\":\"room\",\"serverName\":\"s1\"," +
                 "\"type\":\"identity_reserve_request\"}");
     }
 }
