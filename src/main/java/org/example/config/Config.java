@@ -13,7 +13,7 @@ public class Config {
     public static final int HEARTBEAT_THRESHOLD = ELECTION_START_TIMEOUT;
 
     public static final int HEARTBEAT_INTERVAL = 1000;
-    public static final int MAX_POSSIBLY_DOWN_ROUNDS = (1800/ HEARTBEAT_INTERVAL) * 1000 ;
+    public static final int MAX_POSSIBLY_DOWN_ROUNDS = 10 ;
     public static final String ALIVE = "ALIVE";
     public static final String POSSIBLY_DOWN = "POSSIBLY_DOWN";
     public static final String DOWN = "DOWN";
