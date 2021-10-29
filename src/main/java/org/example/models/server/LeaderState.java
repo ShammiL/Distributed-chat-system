@@ -164,7 +164,7 @@ public class LeaderState {
                     heartbeatSleep = new AtomicInteger(1000);
                 }
 
-                for (ServerInfo server : ServerState.getInstance().getServersListAsArrayList()) {
+                for (ServerInfo server : ServerState.getInstance().getLowerServerInfo()) {
                     try {
                         MessageSender.sendHeartBeatMessage(server, () -> {
                             followerStatus.put(server.getServerId(), Config.ALIVE);
