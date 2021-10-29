@@ -12,27 +12,28 @@ import org.example.services.coordination.MessageSender;
 import java.net.ConnectException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class BullyElection {
 
     private AtomicBoolean waitingForElectionAnswerMsg = new AtomicBoolean(false);
     private AtomicBoolean waitingForElectionCoordinatorMsg = new AtomicBoolean(false);
-    private AtomicBoolean continueElection = new AtomicBoolean(false);
+    private static AtomicBoolean continueElection = new AtomicBoolean(false);
     private AtomicLong lastHeartBeatTime = new AtomicLong(0);
     private ScheduledExecutorService electionAnswerMsgTimeOutExecutor;
     private ScheduledExecutorService coordinatorMsgTimeOutExecutor;
     private ScheduledExecutorService electionTimeoutExecutor;
     private ScheduledFuture<?> electionTimeoutFuture;
+    private static final Map<String, Integer> electionStartTries = new ConcurrentHashMap<>();
 
-    private final Logger logger = Logger.getLogger(BullyElection.class);
+    private static Logger logger = Logger.getLogger(BullyElection.class);
 
     private static BullyElection instance;
+
 
     public static BullyElection getInstance() {
         if (instance == null) {
@@ -56,8 +57,8 @@ public class BullyElection {
     public boolean getContinueElection() {
         return continueElection.get();
     }
-    public synchronized void restartElectionTimeout() {
 
+    public synchronized void restartElectionTimeout() {
         endElectionTimeout();
         startElectionTimeout();
     }
@@ -137,55 +138,52 @@ public class BullyElection {
         logger.info("Coordinator message timeout started");
     }
 
-    public void endElectionStart() {
+    public static void endElectionStart() {
         continueElection.set(false);
+    }
+
+    public static Runnable getElectionStartFailureCallback(ServerInfo higherServer) {
+
+        return () -> {
+            logger.info("higher server " + higherServer.getServerId() + " not alive [ElectionStart]");
+            try {
+                Thread.sleep(Config.ELECTION_START_RETRY_SLEEP);
+            } catch (InterruptedException ignored) {
+            }
+            electionStartTries.computeIfPresent(higherServer.getServerId(), (key,value) -> {
+                if (continueElection.get() && value <= Config.ELECTION_START_TRIES) {
+                    try {
+                        sendElectionStartMessage(higherServer, BullyElection::endElectionStart,  getElectionStartFailureCallback(higherServer));
+                    } catch (InterruptedException | ConnectException e) {
+                        logger.error(e);
+                    }
+                }
+                return value + 1;
+            });
+        };
     }
 
     public void startElection(List<ServerInfo> higherServerList) {
         logger.info("startElection");
-        List<ServerInfo> tryList = new LinkedList<>(higherServerList);
-        int tryCount = tryList.size();
-        int triesLeft = Config.ELECTION_START_TRIES;
-
         waitingForElectionAnswerMsg.set(true);
         continueElection.set(true);
-
-        // Send election start messages/retry
-        while (tryList.size() > 0 && continueElection.get() && triesLeft > 0) {
-            ServerInfo higherServer = tryList.remove(0);
-            tryCount--;
-
+        for (ServerInfo higherServer : higherServerList) {
+            electionStartTries.putIfAbsent(higherServer.getServerId(), 0);
+            electionStartTries.computeIfPresent(higherServer.getServerId(), (k,v)-> 0);
             logger.info("higher server -> " + higherServer.getServerId());
             try {
-                sendElectionStartMessage(higherServer);
-                endElectionStart();
-                break;
-            } catch (ConnectException | InterruptedException e) {
-                logger.info("higher server " + higherServer.getServerId() + " not alive");
-                tryList.add(higherServer);
-            }
-
-            if (tryCount == 0) {
-                // One round of tries is complete
-
-                if (triesLeft == Config.ELECTION_START_TRIES) {
-                    // If first round of tries
-                    startElectionAnswerMsgTimeout();
-                }
-
-                triesLeft--;
-                try {
-                    Thread.sleep(Config.ELECTION_START_RETRY_SLEEP);
-                } catch (InterruptedException ignored) {
-                }
-                tryCount = tryList.size();
+                sendElectionStartMessage(higherServer,  BullyElection::endElectionStart,
+                        getElectionStartFailureCallback(higherServer));
+            } catch (InterruptedException | ConnectException e) {
+               logger.error(e);
             }
         }
+        startElectionAnswerMsgTimeout();
     }
 
-    private void sendElectionStartMessage(ServerInfo higherServer) throws InterruptedException, ConnectException {
+    private static void sendElectionStartMessage(ServerInfo higherServer, Runnable success, Runnable failure) throws InterruptedException, ConnectException {
         logger.info("Election start sent to: " + higherServer.getServerId());
-        MessageSender.sendElectionStartMessage(higherServer);
+        MessageSender.sendElectionStartMessage(higherServer, success, failure);
     }
 
     public void replyAnswerMessage(ServerInfo requestingServer) {

@@ -22,19 +22,20 @@ public final class MessageSender {
     }
 
     public static void sendElectionAnswerMessage(ServerInfo server) throws InterruptedException {
-        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort(), true);
         client.sendMessageAndGetStatus(new ElectionAnswerMessage(ServerState.getInstance().getServerInfo().getServerId()));
     }
 
     public static void sendElectionCoordinatorMessage(ServerInfo server) throws InterruptedException {
-        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort(), true);
         client.sendMessageAndGetStatus(new ElectionCoordinatorMessage(ServerState.getInstance().getServerInfo().getServerId()));
 
     }
 
-    public static void sendElectionStartMessage(ServerInfo server) throws InterruptedException {
-        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort());
-        client.sendMessageAndGetStatus(new ElectionStartMessage(ServerState.getInstance().getServerInfo().getServerId()));
+    public static void sendElectionStartMessage(ServerInfo server, Runnable success, Runnable failure) throws InterruptedException {
+        CoordinationClient client = new CoordinationClient(server.getServerAddress(), server.getCoordinationPort(), true);
+        client.sendMessageAndGetStatus(new ElectionStartMessage(ServerState.getInstance().getServerInfo().getServerId()),
+                success, failure);
     }
 
     public static void sendCoordinatorInformationMessage(ServerInfo server) throws InterruptedException {
