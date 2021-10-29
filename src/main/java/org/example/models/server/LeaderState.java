@@ -1,5 +1,7 @@
 package org.example.models.server;
 
+import org.apache.log4j.Logger;
+import org.example.config.Config;
 import org.example.models.client.GlobalClient;
 import org.example.models.room.GlobalRoom;
 import org.example.services.client.ChatClientServer;
@@ -19,12 +21,9 @@ import static java.lang.Math.min;
 
 
 public class LeaderState {
-    public static final int HEARTBEAT_INTERVAL = 500;
-    public static AtomicInteger heartbeatSleep = new AtomicInteger(1000);
-    public static final int MAX_POSSIBLY_DOWN_ROUNDS = 5;
-    public static final String ALIVE = "ALIVE";
-    public static final String POSSIBLY_DOWN = "POSSIBLY_DOWN";
-    public static final String DOWN = "DOWN";
+    public static AtomicInteger heartbeatSleep = new AtomicInteger(Config.HEARTBEAT_SLEEP_TIME);
+
+    private final Logger logger = Logger.getLogger(LeaderState.class);
 
 
     private static LeaderState instance;
@@ -44,7 +43,6 @@ public class LeaderState {
     }
 
     public static synchronized void destroyLeaderInstance() {
-        System.out.println("Destroy previous leader instance");
         if (heartBeatExecutorService != null) {
             heartBeatExecutorService.shutdownNow();
             heartBeatExecutorService = null;
@@ -61,12 +59,11 @@ public class LeaderState {
     }
 
     public void assignOwnLists() {
-        System.out.println("assign own lists");
+        logger.info("assign own lists");
         addServersLocalListToGlobalClientLists(
                 ListServices.convertGlobalClientList(ChatClientServer.channelIdClient));
         addServersLocalListToGlobalRoomLists(
                 ListServices.convertGlobalRoomList(ChatClientServer.localRoomIdLocalRoom));
-        printLists();
     }
 
     private synchronized void addServersLocalListToGlobalClientLists(Map<String, GlobalClient> globalClients) {
@@ -75,7 +72,7 @@ public class LeaderState {
                 globalClientList.put(e.getKey(), e.getValue());
             }
         }
-        System.out.println("global client list updated");
+        logger.info("global client list updated");
     }
 
     private synchronized void addServersLocalListToGlobalRoomLists(Map<String, GlobalRoom> globalRooms) {
@@ -84,24 +81,23 @@ public class LeaderState {
                 globalRoomList.put(e.getKey(), e.getValue());
             }
         }
-        System.out.println("global room list updated");
+        logger.info("global room list updated");
     }
 
     public void addListsOfAServer(Map<String, GlobalClient> globalClients, Map<String, GlobalRoom> globalRooms) {
         addServersLocalListToGlobalClientLists(globalClients);
         addServersLocalListToGlobalRoomLists(globalRooms);
-        printLists();
     }
 
     public synchronized boolean checkAndAddClient(GlobalClient client) {
         if (globalClientList.containsKey(client.getIdentity())) {
             client.setAccepted(false);
-            System.out.println("user " + client.getIdentity() + " already exist");
+            logger.info("user " + client.getIdentity() + " already exist");
             return false;
         } else {
             client.setAccepted(true);
             globalClientList.put(client.getIdentity(), client);
-            System.out.println(client.getIdentity() + " user added successfully");
+            logger.info(client.getIdentity() + " user added successfully");
             return true;
         }
 
@@ -110,22 +106,24 @@ public class LeaderState {
     public synchronized boolean checkAndAddRoom(GlobalRoom room) {
         if (globalRoomList.containsKey(room.getRoomId())) {
             room.setAccepted(false);
-            System.out.println("room " + room.getRoomId() + " already exist");
+            logger.info("room " + room.getRoomId() + " already exist");
             return false;
         } else {
             room.setAccepted(true);
             globalRoomList.put(room.getRoomId(), room);
-            System.out.println(room.getRoomId() + " added successfully");
+            logger.info(room.getRoomId() + " added successfully");
             return true;
         }
     }
 
     public synchronized void deleteAClient(String clientId) {
         globalClientList.remove(clientId);
+        logger.info("Client deleted successfully: " + clientId);
     }
 
     public synchronized void deleteARoom(String roomId) {
         globalRoomList.remove(roomId);
+        logger.info("Room deleted successfully: " + roomId);
     }
 
     public void removeListsByServerID(String serverId) {
@@ -141,7 +139,7 @@ public class LeaderState {
         globalRoomList.values().removeIf(value -> value.getServerId().equals(serverId));
     }
 
-    public void printLists(){
+    public void printLists() {
 
         globalClientList.forEach((key, value) -> System.out.println(key + " " + value));
         globalRoomList.forEach((key, value) -> System.out.println(key + " " + value));
@@ -151,7 +149,7 @@ public class LeaderState {
         if (heartBeatExecutorService == null) {
             heartBeatExecutorService = Executors.newSingleThreadScheduledExecutor();
             heartBeatExecutorService.scheduleAtFixedRate(() -> {
-                System.out.println("Leader heart beat job is running in this server");
+                logger.info("Leader heart beat job is running in this server");
 
                 long aliveServers = followerStatus.entrySet().stream()
                         .filter(s -> "ALIVE".equals(s.getValue())).count();
@@ -159,7 +157,7 @@ public class LeaderState {
                 if (aliveServers == 0) {
                     try {
                         Thread.sleep(heartbeatSleep.get());
-                        heartbeatSleep.updateAndGet((value)-> min(value+1000, 5000));
+                        heartbeatSleep.updateAndGet((value) -> min(value + 1000, 5000));
                     } catch (InterruptedException ignored) {
                     }
                 } else {
@@ -169,40 +167,40 @@ public class LeaderState {
                 for (ServerInfo server : ServerState.getInstance().getServersListAsArrayList()) {
                     try {
                         MessageSender.sendHeartBeatMessage(server, () -> {
-                            followerStatus.put(server.getServerId(), ALIVE);
-                            System.out.println("Server " + server.getServerId() + " is Alive");
+                            followerStatus.put(server.getServerId(), Config.ALIVE);
+                            logger.info("Server " + server.getServerId() + " is Alive");
                         }, () -> handleHeartBeatSendFailure(server));
                     } catch (ConnectException | InterruptedException ignored) {
                         //This branch shouldn't execute
                     }
                 }
-            }, 0, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
+            }, 0, Config.HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
         }
     }
 
     private void handleHeartBeatSendFailure(ServerInfo server) {
 
-            String currentStatus = followerStatus.get(server.getServerId());
-            if (POSSIBLY_DOWN.equals(currentStatus)) {
-                if (serverDownRounds.getOrDefault(server.getServerId(), 0) < MAX_POSSIBLY_DOWN_ROUNDS) {
-                    serverDownRounds.put(server.getServerId(),
-                            serverDownRounds.getOrDefault(server.getServerId(), 0) + 1);
-                } else if (serverDownRounds.get(server.getServerId()) == MAX_POSSIBLY_DOWN_ROUNDS) {
-                    removeClientListByServerID(server.getServerId());
-                    removeRoomListByServerID(server.getServerId());
-                    followerStatus.put(server.getServerId(), DOWN);
-                }
-                System.out.println("Server " + server.getServerId() + " is Possibly Down");
-            } else if (DOWN.equals(currentStatus)) {
-                System.out.println("Server " + server.getServerId() + " is Down");
-            } else if (ALIVE.equals(currentStatus)) {
-                followerStatus.put(server.getServerId(), POSSIBLY_DOWN);
-                System.out.println("Server " + server.getServerId() + " is Possibly Down");
+        String currentStatus = followerStatus.get(server.getServerId());
+        if (Config.POSSIBLY_DOWN.equals(currentStatus)) {
+            if (serverDownRounds.getOrDefault(server.getServerId(), 0) < Config.MAX_POSSIBLY_DOWN_ROUNDS) {
+                serverDownRounds.put(server.getServerId(),
+                        serverDownRounds.getOrDefault(server.getServerId(), 0) + 1);
+            } else if (serverDownRounds.get(server.getServerId()) == Config.MAX_POSSIBLY_DOWN_ROUNDS) {
+                removeClientListByServerID(server.getServerId());
+                removeRoomListByServerID(server.getServerId());
+                followerStatus.put(server.getServerId(), Config.DOWN);
             }
+            logger.info("Server " + server.getServerId() + " is Possibly Down");
+        } else if (Config.DOWN.equals(currentStatus)) {
+            logger.info("Server " + server.getServerId() + " is Down");
+        } else if (Config.ALIVE.equals(currentStatus)) {
+            followerStatus.put(server.getServerId(), Config.POSSIBLY_DOWN);
+            logger.info("Server " + server.getServerId() + " is Possibly Down");
+        }
     }
 
     public String getServerFromRoomId(String roomId) {
-        if(globalRoomList.containsKey(roomId)){
+        if (globalRoomList.containsKey(roomId)) {
             return globalRoomList.get(roomId).getServerId();
         }
         return null;

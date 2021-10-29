@@ -1,7 +1,7 @@
 package org.example.models.client;
 
-public class GlobalClient implements IClient{
-    private String identity="";
+public class GlobalClient implements IClient {
+    private String identity = "";
     private String serverId;
     private boolean isAccepted = false;
 

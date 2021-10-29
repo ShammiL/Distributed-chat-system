@@ -39,13 +39,7 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        System.out.println("channel inactive");
         ChatClientServer.channelIdClient.remove(ctx.channel().id());
-//        for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
-//            Client clientC = (Client) entry.getValue();
-//            System.out.println(clientC.getIdentity());
-//        }
-
     }
 
     @Override
@@ -54,20 +48,21 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
         AbstractChatRequest request = (AbstractChatRequest) msg;
         try {
             client = ChatClientServer.channelIdClient.get(ctx.channel().id());
+            request.setClient((Client) client);
             serveRequest(client, request);
         } finally {
             ReferenceCountUtil.release(msg);
         }
     }
 
-    private void serveRequest(IClient client, AbstractChatRequest request)  {
+    private void serveRequest(IClient client, AbstractChatRequest request) {
         AbstractRequestHandler requestHandler = RequestHandlerFactory.requestHandler(request, client);
         requestHandler.handleRequest();
         if (requestHandler instanceof QuitRequestHandler) {
             ctx.close();
             ChatClientServer.channelIdClient.remove(ctx.channel().id());
             deleteFromGlobalClient(((Client) client).getIdentity());
-            if (((QuitRequestHandler)requestHandler).isCurrentOwner()) {
+            if (((QuitRequestHandler) requestHandler).isCurrentOwner()) {
                 DeleteRoomRequestHandler deleteRoomRequestHandler = new DeleteRoomRequestHandler(new DeleteRoomRequest(((Client) client).getRoom().getRoomId()), client);
                 deleteRoomRequestHandler.handleRequest();
             }
@@ -75,12 +70,11 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    private void deleteFromGlobalClient(String clientId){
+    private void deleteFromGlobalClient(String clientId) {
         // if leader add to global list
-        if(ServerState.getInstance().isCoordinator()){
+        if (ServerState.getInstance().isCoordinator()) {
             LeaderState.getInstance().deleteAClient(clientId);
-        }
-        else {
+        } else {
             //  send server request
             JSONObject response = null;
             try {
@@ -89,19 +83,17 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
                         clientId,
                         "client"
                 );
-                System.out.println("releaseIdentity status : " + response.get("released"));
             } catch (InterruptedException e) {
                 logger.error("Interrupted exception :" + e.getMessage());
             }
         }
     }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-//        cause.printStackTrace();
         AbstractChatRequest request = new QuitRequest();
-//        IClient client = ChatClientServer.channelIdClient.remove(ctx.channel().id())
         serveRequest(client, request);
-        System.out.println("Disconnected");
+        logger.info("Disconnected");
         ctx.close();
 
     }

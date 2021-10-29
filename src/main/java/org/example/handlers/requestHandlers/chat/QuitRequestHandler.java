@@ -1,5 +1,6 @@
 package org.example.handlers.requestHandlers.chat;
 
+import org.apache.log4j.Logger;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
 import org.example.models.messages.chat.reply.ReplyObjects;
@@ -14,6 +15,7 @@ public class QuitRequestHandler extends AbstractRequestHandler {
     private String identity;
     private String roomId;
     private String formerRoomId;
+    private final Logger logger = Logger.getLogger(QuitRequestHandler.class);
 
     public QuitRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
@@ -31,14 +33,12 @@ public class QuitRequestHandler extends AbstractRequestHandler {
 
     @Override
     public void handleRequest() {
+        logger.info("Quit request from: " + getClient().getIdentity());
         synchronized (this) {
             JSONObject reply = processRequest();
             sendResponse(reply);
             broadcast(reply, getClient().getRoom());
-
-
         }
-
     }
 
     public Boolean isCurrentOwner() {

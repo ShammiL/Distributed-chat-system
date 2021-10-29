@@ -1,5 +1,6 @@
 package org.example;
 
+import org.apache.log4j.Logger;
 import org.example.services.client.ChatClientServer;
 import org.example.services.coordination.server.CoordinationServer;
 import org.example.services.server.ConfigReaderService;
@@ -20,13 +21,17 @@ public class Main {
             parser.parseArgument(args);
             serverId = values.getServerId();
             serverConfig = values.getServerConfig();
+            System.setProperty("server_id", serverId);
+
+            Logger logger = Logger.getLogger(Main.class);
+            logger.info("server config set");
 
             new ConfigReaderService().readFile(serverConfig, serverId);
             Thread coordinatorThread = new Thread(() -> {
                 try {
                     CoordinationServer.getInstance().run();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             });
 
@@ -34,11 +39,8 @@ public class Main {
             CoordinationServer.getInstance().SelectCoordinator();
             ChatClientServer.getInstance().run();
 
-//            ServerInfo s1 = ServerState.getInstance().getServerInfoById("s1");
-//            MessageSender.releaseIdentity(s1, "test", "room");
-
         } catch (CmdLineException e) {
-            e.getLocalizedMessage();
+//            logger.error(e.getMessage());
         }
     }
 }

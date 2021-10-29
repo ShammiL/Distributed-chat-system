@@ -1,6 +1,7 @@
 package org.example.handlers.requestHandlers.chat;
 
 import io.netty.channel.ChannelId;
+import org.apache.log4j.Logger;
 import org.example.models.client.Client;
 import org.example.models.client.IClient;
 import org.example.models.messages.chat.reply.ReplyObjects;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class WhoRequestHandler extends AbstractRequestHandler {
+    private final Logger logger = Logger.getLogger(WhoRequestHandler.class);
 
     public WhoRequestHandler(IClient client) {
         super(((Client) client));
@@ -23,25 +25,25 @@ public class WhoRequestHandler extends AbstractRequestHandler {
         Room room = getClient().getRoom();
         String roomId = room.getRoomId();
         String owner;
-        if (room instanceof LocalRoom){
+        if (room instanceof LocalRoom) {
             owner = ((LocalRoom) room).getOwner();
-        }
-        else owner = "";
+        } else owner = "";
         ArrayList<String> roomMembers = getRoomMembers(room);
         return ReplyObjects.roomContents(roomId, roomMembers, owner);
     }
 
     @Override
     public void handleRequest() {
+        logger.info("Who request from: " + getClient().getIdentity());
         JSONObject reply = processRequest();
         sendResponse(reply);
     }
 
     public ArrayList<String> getRoomMembers(Room room) {
         ArrayList<String> roomMembers = new ArrayList<>();
-        for(Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()){
+        for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
             IClient client = entry.getValue();
-            if(((Client) client).getRoom().equals(room)){
+            if (((Client) client).getRoom().equals(room)) {
                 roomMembers.add(((Client) client).getIdentity());
             }
         }

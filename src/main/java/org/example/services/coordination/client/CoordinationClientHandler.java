@@ -25,15 +25,12 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
 
     private final AbstractCoordinationMessage message;
     private final AtomicBoolean requestSent = new AtomicBoolean(false);
-    //    private final AtomicBoolean status;
     private final JSONObject responseObj;
-    //    private JSONObject responseObj;
     private final boolean isFireAndForget;
 
     private static String[] nonFireAndForgetTypes = {
             "identity_reserve_request",
             "identity_release_request",
-//            "election_start",
             "room_list",
             "room_info_request"
     };
@@ -129,13 +126,13 @@ public class CoordinationClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    private void handleRoomInfoResponse(RoomInfoResponse msg){
+    private void handleRoomInfoResponse(RoomInfoResponse msg) {
         System.out.println("handleRoomInfoResponse");
 
         this.responseObj.clear();
         String roomOwnedServerName = msg.getRoomOwnedServerName();
         System.out.println("RoomOwnedServerName : " + roomOwnedServerName);
-        if(roomOwnedServerName != null) {
+        if (roomOwnedServerName != null) {
             ServerInfo roomOwnedServer = ServerState.getInstance().getServersList().get(roomOwnedServerName);
             int clientPort = roomOwnedServer.getClientPort();
             String serverAddress = roomOwnedServer.getServerAddress();

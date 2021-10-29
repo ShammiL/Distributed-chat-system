@@ -24,6 +24,7 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     private final CreateRoomRequest request;
     private boolean approved;
     private String roomId;
+    private boolean retried = false;
     private final Logger logger = Logger.getLogger(CreateRoomRequestHandler.class);
 
     public CreateRoomRequestHandler(AbstractChatRequest request, IClient client) {
@@ -42,7 +43,7 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     @Override
     public JSONObject processRequest() {
         roomId = request.getRoomId();
-        System.out.println("roomId : " + roomId);
+        logger.info("create room request for roomId : " + roomId);
         approved = approveIdentity(roomId);
         return ReplyObjects.createNewRoom(roomId, approved);
     }
@@ -51,7 +52,9 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
     public void handleRequest() {
         synchronized (this) {
             JSONObject reply = processRequest();
-            sendResponse(reply);
+            if  (!retried) {
+                sendResponse(reply);
+            }
             if (approved) {
                 Room room = new LocalRoom(request.getRoomId(), getClient().getIdentity()); // create a new local room
                 Room formerRoom = getClient().getRoom(); // get previous room
@@ -81,7 +84,8 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
                 return checkUniqueIdentity(identity);
             } catch (InterruptedException | ConnectException e) {
                 logger.error("error when sending new identity to leader " + e.getMessage());
-                // todo: start election and check again
+                request.incrementTries();
+                retried = ServerState.getInstance().addRetryRequest(request);
                 return false;
             }
         } else return false;
@@ -103,7 +107,6 @@ public class CreateRoomRequestHandler extends AbstractRequestHandler {
                         identity,
                         "room"
                 );
-                System.out.println("reserveIdentity status : " + response.get("reserved"));
                 return response.get("reserved").equals("true");
             }
 

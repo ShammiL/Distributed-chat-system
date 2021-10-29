@@ -1,6 +1,5 @@
 package org.example.handlers.requestHandlers.chat;
 
-import io.netty.channel.ChannelId;
 import org.apache.log4j.Logger;
 import org.example.models.client.Client;
 import org.example.models.client.GlobalClient;
@@ -15,13 +14,14 @@ import org.example.services.coordination.MessageSender;
 import org.json.simple.JSONObject;
 
 import java.net.ConnectException;
-import java.util.Map;
+
 
 public class NewIdentityRequestHandler extends AbstractRequestHandler {
     private final NewIdentityRequest request;
     private boolean approved;
     private String identity;
     private final Logger logger = Logger.getLogger(NewIdentityRequestHandler.class);
+    private boolean retried = false;
 
     public NewIdentityRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
@@ -39,19 +39,20 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
 
     @Override
     public JSONObject processRequest() {
+        logger.info("New identity request from: " + request.getIdentity());
         identity = request.getIdentity();
         System.out.println("identity : " + identity);
         try {
             approved = approveIdentity(identity);
         } catch (InterruptedException | ConnectException e) {
             logger.error("error when sending new identity to leader " + e.getMessage());
-            // todo: start election and check again
+            request.incrementTries();
+            retried = ServerState.getInstance().addRetryRequest(request);
         }
 
         String approvalString;
         if (approved) approvalString = "true";
         else approvalString = "false";
-        System.out.println(approvalString);
         return ReplyObjects.newIdentityReply(approvalString);
     }
 
@@ -59,7 +60,9 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
     public void handleRequest() {
         synchronized (this) {
             JSONObject reply = processRequest();
-            sendResponse(reply);
+            if (!retried) {
+                sendResponse(reply);
+            }
             if (approved) {
                 getClient().setIdentity(request.getIdentity());
                 getClient().setRoom(ChatClientServer.getMainHal());
@@ -84,6 +87,7 @@ public class NewIdentityRequestHandler extends AbstractRequestHandler {
             if (ServerState.getInstance().isCoordinator()) {
                 return !checkUniqueIdentity(identity);
             } else {
+
                 JSONObject response = MessageSender.reserveIdentity(
                         ServerState.getInstance().getServerInfoById(
                                 ServerState.getInstance().getCoordinator().getServerId()

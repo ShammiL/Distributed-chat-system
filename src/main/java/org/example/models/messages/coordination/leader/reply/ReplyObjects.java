@@ -4,7 +4,8 @@ import org.json.simple.JSONObject;
 
 public final class ReplyObjects {
 
-    private ReplyObjects() {}
+    private ReplyObjects() {
+    }
 
     public static JSONObject leaderResponse() {
         JSONObject responseObj = new JSONObject();

@@ -1,6 +1,7 @@
 package org.example.services.coordination.server;
 
 //import com.sun.security.ntlm.Server;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -39,22 +40,23 @@ public class CoordinationServer {
     }
 
     public void SelectCoordinator() {
-        System.out.println("select coordinator");
+        logger.info("select coordinator");
 
-        if(ServerState.getInstance().getHigherServerInfo().isEmpty()){
+        if (ServerState.getInstance().getHigherServerInfo().isEmpty()) {
 //                if there are no higher priority servers
-            System.out.println("there are no higher priority servers");
+            logger.info("there are no higher priority servers");
             ServerState.getInstance().setCoordinator(ServerState.getInstance().getServerInfo()); // set self as the coordinator
             LeaderState.getInstance().assignOwnLists(); // set self ss the leader
             BullyElection.getInstance().informAndSetNewCoordinator(
                     ServerState.getInstance().getLowerServerInfo()
             );
-        } else{
+        } else {
             BullyElection.getInstance().startElection(ServerState.getInstance().getHigherServerInfo());
         }
 
 
     }
+
     public void run() throws Exception {
         EventLoopGroup parentGroup = new NioEventLoopGroup();
         EventLoopGroup childGroup = new NioEventLoopGroup();
@@ -70,7 +72,6 @@ public class CoordinationServer {
                                     new JsonObjectDecoder(),
                                     new CoordinationMessageDecoder(),
                                     new StringEncoder(CharsetUtil.UTF_8),
-//                                    new CoordinationMessageValidator(),
                                     new CoordinationServerHandler()
                             );
                         }

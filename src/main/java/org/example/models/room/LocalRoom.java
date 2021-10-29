@@ -1,6 +1,6 @@
 package org.example.models.room;
 
-public class LocalRoom extends Room{
+public class LocalRoom extends Room {
     private String owner;
 
     public LocalRoom(String roomId, String owner) {

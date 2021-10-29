@@ -22,10 +22,11 @@ public class CoordinationClient {
     private final int port;
     private final boolean async;
 
-    public CoordinationClient(String host, int port){
+    public CoordinationClient(String host, int port) {
         this(host, port, false);
     }
-    public  CoordinationClient(String host, int port, boolean async) {
+
+    public CoordinationClient(String host, int port, boolean async) {
         this.host = host;
         this.port = port;
         this.async = async;
@@ -37,7 +38,6 @@ public class CoordinationClient {
 
     public JSONObject sendMessageAndGetStatus(AbstractCoordinationMessage message, Runnable success, Runnable failure) throws InterruptedException {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-//        AtomicBoolean status = new AtomicBoolean(false);
         JSONObject responseObj = ReplyObjects.leaderResponse();
 
         try {
@@ -53,7 +53,6 @@ public class CoordinationClient {
                             new CoordinationMessageDecoder(),
                             new CoordinationMessageEncoder(),
                             new StringEncoder(CharsetUtil.UTF_8),
-//                            new CoordinationClientHandler(message, status));
                             new CoordinationClientHandler(message, responseObj));
                 }
             });
@@ -64,9 +63,9 @@ public class CoordinationClient {
             if (async) {
                 ChannelFuture f = bootstrap.connect(host, port);
                 f.addListener((ChannelFutureListener) channelFuture -> {
-                    if (f.isSuccess() && success != null){
+                    if (f.isSuccess() && success != null) {
                         success.run();
-                    } else if( !f.isSuccess() && failure != null) {
+                    } else if (!f.isSuccess() && failure != null) {
                         failure.run();
                     }
                     workerGroup.shutdownGracefully();
@@ -78,12 +77,11 @@ public class CoordinationClient {
             }
 
         } finally {
-            if(!async) {
+            if (!async) {
                 workerGroup.shutdownGracefully();
             }
         }
 
-//        return status;
         return responseObj;
     }
 }

@@ -20,6 +20,7 @@ import java.util.Map;
 public class DeleteRoomRequestHandler extends AbstractRequestHandler {
     private final DeleteRoomRequest request;
     private boolean approved;
+    private boolean retried = false;
     private final Logger logger = Logger.getLogger(DeleteRoomRequestHandler.class);
 
     public DeleteRoomRequestHandler(AbstractChatRequest request, IClient client) {
@@ -36,9 +37,12 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
     @Override
     public void handleRequest() {
         synchronized (this) {
+            logger.info("Delete room request for room " + request.getRoomId());
             JSONObject reply = processRequest();
-            sendResponse(reply);
 
+            if (!retried) {
+                sendResponse(reply);
+            }
             if (approved) {
                 for (Map.Entry<ChannelId, IClient> entry : ChatClientServer.channelIdClient.entrySet()) {
                     Client clientC = (Client) entry.getValue();
@@ -58,7 +62,8 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
                     deleteFromGlobalList();
                 } catch (InterruptedException | ConnectException e) {
                     logger.error("error when sending new identity to leader " + e.getMessage());
-                    // todo: start election and check again
+                    request.incrementTries();
+                    retried = ServerState.getInstance().addRetryRequest(request);
                 }
             }
 
@@ -67,10 +72,9 @@ public class DeleteRoomRequestHandler extends AbstractRequestHandler {
 
 
     private void deleteFromGlobalList() throws InterruptedException, ConnectException {
-        if (ServerState.getInstance().isCoordinator()){
+        if (ServerState.getInstance().isCoordinator()) {
             LeaderState.getInstance().deleteARoom(request.getRoomId());
-        }
-        else {
+        } else {
             //  send server request
             JSONObject response = null;
 

@@ -5,10 +5,11 @@ import org.example.models.messages.coordination.AbstractCoordinationMessage;
 
 public class AbstractIdentityMessage extends AbstractCoordinationMessage {
     protected final String identity;
+
     @SerializedName("identityType")
     protected final String identityType;
 
-    public AbstractIdentityMessage(String type, String identity, String identityType,  String serverName) {
+    public AbstractIdentityMessage(String type, String identity, String identityType, String serverName) {
         super(type, serverName);
         this.identity = identity;
         this.identityType = identityType;

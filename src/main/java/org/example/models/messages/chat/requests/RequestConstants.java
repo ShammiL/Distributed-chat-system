@@ -12,5 +12,6 @@ public final class RequestConstants {
     public final static String MESSAGE = "message";
     public final static String QUIT = "quit";
 
-    private RequestConstants(){}
+    private RequestConstants() {
+    }
 }
