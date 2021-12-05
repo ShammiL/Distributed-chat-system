@@ -3,7 +3,7 @@ package org.example.models.client;
 import io.netty.channel.ChannelHandlerContext;
 import org.example.models.room.Room;
 
-public class Client implements IClient{
+public class Client implements IClient {
     private String identity = "";
     private ChannelHandlerContext ctx;
     private Room room;

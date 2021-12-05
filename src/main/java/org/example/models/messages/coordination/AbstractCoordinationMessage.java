@@ -7,6 +7,7 @@ public abstract class AbstractCoordinationMessage extends AbstractMessage {
 
     @SerializedName("serverName")
     protected String serverName;
+
     public AbstractCoordinationMessage(String type, String serverName) {
         super(type);
         this.serverName = serverName;

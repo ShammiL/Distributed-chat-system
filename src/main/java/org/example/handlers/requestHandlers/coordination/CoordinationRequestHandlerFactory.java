@@ -14,32 +14,32 @@ import org.example.models.server.ServerInfo;
 
 public class CoordinationRequestHandlerFactory {
 
-    public static AbstractCoordinationRequestHandler requestHandler(AbstractMessage request, ServerInfo server){
+    public static AbstractCoordinationRequestHandler requestHandler(AbstractMessage request, ServerInfo server) {
         if (request instanceof ElectionAnswerMessage) {
             return new ElectionAnswerMessageHandler(server);
         }
-        if (request instanceof ElectionCoordinatorMessage){
+        if (request instanceof ElectionCoordinatorMessage) {
             return new ElectionCoordinatorMessageHandler(server);
         }
-        if (request instanceof ElectionStartMessage){
+        if (request instanceof ElectionStartMessage) {
             return new ElectionStartMessageHandler(server);
         }
-        if (request instanceof HeartbeatMessage){
+        if (request instanceof HeartbeatMessage) {
             return new HeartbeatMessageHandler(server);
         }
-        if (request instanceof IdentityReleaseRequest){
+        if (request instanceof IdentityReleaseRequest) {
             return new IdentityReleaseRequestHandler(server, (IdentityReleaseRequest) request);
         }
-        if (request instanceof IdentityReserveRequest){
+        if (request instanceof IdentityReserveRequest) {
             return new IdentityReserveRequestHandler(server, (IdentityReserveRequest) request);
         }
         if (request instanceof CoordinatorInformationMessage) {
             return new CoordinatorInformationMessageHandler(server, (CoordinatorInformationMessage) request);
         }
-        if (request instanceof GlobalRoomListRequest){
+        if (request instanceof GlobalRoomListRequest) {
             return new GlobalRoomListHandler(server, (GlobalRoomListRequest) request);
         }
-        if (request instanceof RoomInfoRequest){
+        if (request instanceof RoomInfoRequest) {
             return new RoomInfoHandler(server, (RoomInfoRequest) request);
         }
         return null;

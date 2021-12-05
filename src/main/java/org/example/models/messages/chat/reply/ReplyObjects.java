@@ -6,7 +6,9 @@ import org.json.simple.JSONObject;
 import java.util.List;
 
 public class ReplyObjects {
-    private ReplyObjects() {}
+    private ReplyObjects() {
+    }
+
     @SuppressWarnings("unchecked")
     public static JSONObject newIdentityReply(String approveVal) {
         JSONObject newIdentity = new JSONObject();
@@ -53,7 +55,7 @@ public class ReplyObjects {
         return msg;
     }
 
-    public static JSONObject deleteRoomClientMessage(String roomId, boolean approved){
+    public static JSONObject deleteRoomClientMessage(String roomId, boolean approved) {
         JSONObject msg = new JSONObject();
         msg.put("type", "deleteroom");
         msg.put("roomid", roomId);
@@ -61,7 +63,7 @@ public class ReplyObjects {
         return msg;
     }
 
-    public static JSONObject deleteRoomServerMessage(String roomId){
+    public static JSONObject deleteRoomServerMessage(String roomId) {
         JSONObject msg = new JSONObject();
         msg.put("type", "deleteroom");
         msg.put("roomid", roomId);
@@ -95,7 +97,7 @@ public class ReplyObjects {
         return msg;
     }
 
-    public static JSONObject moveJoinServerMessage(boolean approved){
+    public static JSONObject moveJoinServerMessage(boolean approved) {
         JSONObject msg = new JSONObject();
         msg.put("type", "serverchange");
         msg.put("approved", Boolean.toString(approved));

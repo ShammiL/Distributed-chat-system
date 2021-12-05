@@ -1,5 +1,6 @@
 package org.example.handlers.requestHandlers.coordination;
 
+import org.apache.log4j.Logger;
 import org.example.models.client.GlobalClient;
 import org.example.models.messages.coordination.leader.reply.ReplyObjects;
 import org.example.models.messages.coordination.leader.request.IdentityReserveRequest;
@@ -8,9 +9,10 @@ import org.example.models.server.LeaderState;
 import org.example.models.server.ServerInfo;
 import org.json.simple.JSONObject;
 
-public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHandler{
-
+public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHandler {
+    private final Logger logger = Logger.getLogger(IdentityReleaseRequestHandler.class);
     private final IdentityReserveRequest request;
+
     public IdentityReserveRequestHandler(ServerInfo server, IdentityReserveRequest request) {
         super(server);
         this.request = request;
@@ -19,7 +21,7 @@ public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHa
 
     @Override
     public JSONObject handleRequest() {
-        System.out.println("Received Identity Reserve Request from: " +
+        logger.info("Received Identity Reserve Request from: " +
                 server.getServerId() + " " +
                 request.getIdentity() + " " +
                 request.getIdentityType() + " " +
@@ -28,12 +30,11 @@ public class IdentityReserveRequestHandler extends AbstractCoordinationRequestHa
 
         boolean approved = false;
 
-        if (request.getIdentityType().equals("room")){
-            GlobalRoom room = new GlobalRoom(request.getIdentity() , server.getServerId());
+        if (request.getIdentityType().equals("room")) {
+            GlobalRoom room = new GlobalRoom(request.getIdentity(), server.getServerId());
             approved = LeaderState.getInstance().checkAndAddRoom(room);
-        }
-        else if (request.getIdentityType().equals("client")){
-            GlobalClient client = new GlobalClient(request.getIdentity() , server.getServerId());
+        } else if (request.getIdentityType().equals("client")) {
+            GlobalClient client = new GlobalClient(request.getIdentity(), server.getServerId());
             approved = LeaderState.getInstance().checkAndAddClient(client);
         }
         return ReplyObjects.identityReserveReply(

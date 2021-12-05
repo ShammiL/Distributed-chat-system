@@ -24,6 +24,7 @@ public class JoinRoomRequestHandler extends AbstractRequestHandler{
     private String moveJoinHost;
     private String moveJoinPort;
     boolean isGlobalRoomExist = false;
+    private boolean retried = false;
 
     public JoinRoomRequestHandler(AbstractChatRequest request, IClient client) {
         super((Client) client);
@@ -48,9 +49,9 @@ public class JoinRoomRequestHandler extends AbstractRequestHandler{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ConnectException e) {
-//                    e.printStackTrace();
                     System.out.println("leader not alive");
-//                  TODO ...
+                    request.incrementTries();
+                    retried = ServerState.getInstance().addRetryRequest(request);
                 }
                 if(isGlobalRoomExist){
 //                    if room exist in global room list
@@ -109,7 +110,9 @@ public class JoinRoomRequestHandler extends AbstractRequestHandler{
     public void handleRequest() {
         synchronized (this) {
             JSONObject reply = processRequest();
-            sendResponse(reply);
+            if (! retried) {
+                sendResponse(reply);
+            }
             System.out.println("Handle request method in join room" + reply.toString());
             if (isLocalRoomExist( request.getRoomId()) && isNotCurrentOwner()) {
                 Room newRoom = ChatClientServer.localRoomIdLocalRoom.get( request.getRoomId());

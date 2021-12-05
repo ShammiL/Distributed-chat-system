@@ -1,6 +1,6 @@
 package org.example.models.room;
 
-public class GlobalRoom extends Room{
+public class GlobalRoom extends Room {
     private String serverId;
     private boolean isAccepted = false;
 

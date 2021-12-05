@@ -20,6 +20,7 @@ public class CoordinationMessageEncoder extends MessageToByteEncoder<AbstractCoo
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
         gson = gsonBuilder.create();
     }
+
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, AbstractCoordinationMessage coordinationMessage,
                           ByteBuf byteBuf) throws Exception {
